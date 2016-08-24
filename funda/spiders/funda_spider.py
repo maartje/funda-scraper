@@ -46,13 +46,12 @@ class FundaSpider(CrawlSpider):
         periodic_contribution_vve = self.extract_text(response, "//dt[contains(.,'Bijdrage VvE')]/following-sibling::dd[1]/text()")
         periodic_contribution_periodic = self.extract_text(response, "//dt[contains(.,'Periodieke bijdrage')]/following-sibling::dd[1]/text()")
         periodic_contribution_service = self.extract_text(response, "//dt[contains(.,'Servicekosten')]/following-sibling::dd[1]/text()")
-        periodic_contribution = ', '.join([periodic_contribution_vve, periodic_contribution_service, periodic_contribution_periodic]).strip()
+        periodic_contribution = ' '.join([periodic_contribution_vve, periodic_contribution_service, periodic_contribution_periodic]).strip()
         new_item['periodieke_bijdrage_text'] = periodic_contribution
-        #periodic_contribution = re.findall(r'\d+', periodic_contribution)[0] if periodic_contribution else ''
 
         house_type_detail = self.extract_text(response, "//dt[contains(.,'Soort woonhuis')]/following-sibling::dd[1]/text()")
         appartment_type_detail = self.extract_text(response, "//dt[contains(.,'Soort appartement')]/following-sibling::dd[1]/text()")
-        property_type_detail = ', '.join([house_type_detail, appartment_type_detail])
+        property_type_detail = ' '.join([house_type_detail, appartment_type_detail]).strip()
         new_item['soort_woning'] = property_type_detail
 
         new_item['soort_bouw'] =  self.extract_text(response, "//dt[contains(.,'Soort bouw')]/following-sibling::dd[1]/text()")
@@ -68,37 +67,57 @@ class FundaSpider(CrawlSpider):
         new_item['buitenruimte_text'] =  self.extract_text(response, "//dt[contains(.,'Gebouwgebonden buitenruimte')]/following-sibling::dd[1]/text()")
 
 
+
+        new_item['inhoud_text'] =  self.extract_text(response, "//dt[contains(.,'Inhoud')]/following-sibling::dd[1]/text()")
+
+        new_item['woonlagen_text'] =  self.extract_text(response, "//dt[contains(.,'Aantal woonlagen')]/following-sibling::dd[1]/text()")
+
+        new_item['badkamers_text'] =  self.extract_text(response, "//dt[contains(.,'Aantal badkamers')]/following-sibling::dd[1]/text()")
+
+        new_item['gelegen_op_text'] =  self.extract_text(response, "//dt[contains(.,'Gelegen op')]/following-sibling::dd[1]/text()")
+
+        new_item['badkamervoorzieningen'] =  self.extract_text(response, "//dt[contains(.,'Badkamervoorzieningen')]/following-sibling::dd[1]/text()")
+
+        new_item['externe_bergruimte_text'] =  self.extract_text(response, "//dt[contains(.,'Externe bergruimte')]/following-sibling::dd[1]/text()")
+
+        new_item['voorzieningen'] =  self.extract_text(response, "//dt[contains(.,'Voorzieningen')]/following-sibling::dd[1]/text()")
+
+        new_item['energielabel_text'] =  self.extract_text(response, "//dt[contains(.,'nergielabel')]/following-sibling::dd[1]/text()")
+
+        new_item['isolatie'] =  self.extract_text(response, "//dt[contains(.,'Isolatie')]/following-sibling::dd[1]/text()")
+        
+        new_item['verwarming'] =  self.extract_text(response, "//dt[contains(.,'Verwarming')]/following-sibling::dd[1]/text()")
+
+        new_item['warm_water'] =  self.extract_text(response, "//dt[contains(.,'Warm water')]/following-sibling::dd[1]/text()")
+
+        new_item['cv_ketel'] =  self.extract_text(response, "//dt[contains(.,'Cv-ketel')]/following-sibling::dd[1]/text()")
+
+        new_item['eigendomssituatie_text'] =  self.extract_text(response, "//dt[contains(.,'Eigendomssituatie')]/following-sibling::dd[1]/text()")
+
+        new_item['lasten_text'] =  self.extract_text(response, "//dt[contains(.,'Lasten')]/following-sibling::dd[1]/text()")
+
+        new_item['ligging'] =  self.extract_text(response, "//dt[contains(.,'Ligging')]/following-sibling::dd[1]/text()")
+
+        new_item['tuin'] =  self.extract_text(response, "//dt[contains(.,'Tuin')]/following-sibling::dd[1]/text()")
+
+        new_item['achtertuin'] =  self.extract_text(response, "//dt[contains(.,'Achtertuin')]/following-sibling::dd[1]/text()")
+
+        new_item['voortuin'] =  self.extract_text(response, "//dt[contains(.,'Voortuin')]/following-sibling::dd[1]/text()")
+
+        new_item['ligging_tuin'] =  self.extract_text(response, "//dt[contains(.,'Ligging tuin')]/following-sibling::dd[1]/text()")
+
+        new_item['balkon_of_dakterras'] =  self.extract_text(response, "//dt[contains(.,'Balkon/dakterras')]/following-sibling::dd[1]/text()")
+
+        new_item['schuur_of_berging'] =  self.extract_text(response, "//dt[contains(.,'Schuur/berging')]/following-sibling::dd[1]/text()")
+
+        new_item['garage'] =  self.extract_text(response, "//dt[contains(.,'Soort garage')]/following-sibling::dd[1]/text()")
+
+        new_item['garage_capaciteit'] =  self.extract_text(response, "//dt[contains(.,'Capaciteit')]/following-sibling::dd[1]/text()")
+
+        new_item['parkeergelegenheid'] =  self.extract_text(response, "//dt[contains(.,'Soort parkeergelegenheid')]/following-sibling::dd[1]/text()")
+
         yield new_item
         
-
-
-
-# Gebouwgebonden buitenruimte
-# Inhoud
-# Aantal woonlagen
-# Aantal badkamers
-# Gelegen op
-# Badkamervoorzieningen
-# Externe bergruimte
-# Voorzieningen
-
-
-# Energielabel | Voorlopig energielabel
-# Isolatie, Verwarming, Warm water, Cv-ketel
-
-# Eigendomssituatie
-# Lasten
-
-# Ligging
-# Tuin, Achtertuin, Voortuin, Ligging tuin
-# Balkon/dakterras
-
-# Schuur, berging
-
-# Soort garage
-# Capaciteit
-
-# Soort parkeergelegenheid
 
 
 # Omschrijving

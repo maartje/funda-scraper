@@ -28,6 +28,7 @@ class PreprocessPipeline(object):
         
         # vraagprijs
         item['vraagprijs'] = re.findall(r' \d+.\d+', item['vraagprijs_text'])[0].strip().replace('.','')
+        item['kosten_koper'] = not(re.findall(r' v\.o\.n', item['vraagprijs_text']))
 
         # bouwjaar
         item['bouwjaar'] = re.findall(r'\d+', item['bouwjaar_text'])[0] if item['bouwjaar_text'] else ''
@@ -43,6 +44,8 @@ class PreprocessPipeline(object):
 
         # buitenruimte
         item['buitenruimte'] = re.findall(r'\d+', item['buitenruimte_text'])[0] if item['buitenruimte_text'] else ''
+
+        item['periodieke_bijdrage'] = re.findall(r'\d+', item['periodieke_bijdrage_text'])[0] if item['periodieke_bijdrage_text'] and re.findall(r'\d+', item['periodieke_bijdrage_text']) else ''
 
         # kamers
         rooms = re.findall('\d+ kamer',item['kamers_text'])

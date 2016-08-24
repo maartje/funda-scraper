@@ -1,0 +1,12 @@
+RowKey: format
+Balkon_of_dakterras: balkon/dakterras/frans balkon
+perceel_oppervlakte: 1.201 => 1 (point is incorrectly processed)
+periodieke bijdrage: check 'per maand'
+badkamers_text: extract nr of bathrooms, toilets
+garage: extract possible values
+parkeergelegenheid: extract possible values
+garage_capaciteit: check for 'auto', extract number
+
+... and more
+
+

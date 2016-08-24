@@ -34,59 +34,54 @@ class FundaSpider(CrawlSpider):
         new_item = response.request.meta['item']
 
         title = response.xpath('//title/text()').extract()[0]
-        postal_code = re.search(r'\d{4} [A-Z]{2}', title).group(0)
-        city = re.search(r'\d{4} [A-Z]{2} \w+',title).group(0).split()[2]
-        address = re.findall(r'te koop: (.*) \d{4}',title)[0]
-        new_item['gemeente'] = city
-        new_item['postcode'] = postal_code
-        new_item['address'] = address
+        new_item['title'] = title
+        
+        new_item['postcode'] = re.search(r'\d{4} [A-Z]{2}', title).group(0)
+        new_item['gemeente'] = re.search(r'\d{4} [A-Z]{2} \w+',title).group(0).split()[2]
+        new_item['address'] = re.findall(r'te koop: (.*) \d{4}',title)[0]
+        straat = re.findall(r'te koop: ([a-zA-Z\. -]*) ',title)
+        new_item['straat'] = straat[0] if straat else ''
+        new_item['huisnummer'] = re.findall(r'\d+',title)[0]
 
-        price_dd = response.xpath("//dt[contains(.,'Vraagprijs')]/following-sibling::dd[1]/text()").extract()[0]
+        price_dd = self.extract_text(response, "//dt[contains(.,'Vraagprijs')]/following-sibling::dd[1]/text()")
+        new_item['vraagprijs_text'] = price_dd
         price = re.findall(r' \d+.\d+', price_dd)[0].strip().replace('.','')
         new_item['vraagprijs'] = price
 
-
         year_built_dd = self.extract_text(response, "//dt[contains(.,'Bouwjaar')]/following-sibling::dd[1]/text()")
+        new_item['bouwjaar_text'] = year_built_dd
         year_built = re.findall(r'\d+', year_built_dd)[0] if year_built_dd else ''
         new_item['bouwjaar'] = year_built
 
         area_dd = self.extract_text(response, "//dt[contains(.,'Woonoppervlakte')]/following-sibling::dd[1]/text()")
+        new_item['woonoppervlakte_text'] = area_dd
         area = re.findall(r'\d+', area_dd)[0] if area_dd else ''
         new_item['woonoppervlakte'] = area
 
         rooms_dd = self.extract_text(response, "//dt[contains(.,'Aantal kamers')]/following-sibling::dd[1]/text()")
+        new_item['kamers_text'] = rooms_dd
         rooms = re.findall('\d+ kamer',rooms_dd)
         rooms = rooms[0].replace(' kamer','') if rooms else ''
         new_item['kamers'] = rooms
-
         bedrooms = re.findall('\d+ slaapkamer',rooms_dd)
         bedrooms = bedrooms[0].replace(' slaapkamer','') if bedrooms else ''
         new_item['slaapkamers'] = bedrooms
 
-        
-
-        #additional info
-
-
         new_item['status'] =  self.extract_text(response, "//dt[contains(.,'Status')]/following-sibling::dd[1]/text()")
 
         new_item['aanvaarding'] =  self.extract_text(response, "//dt[contains(.,'Aanvaarding')]/following-sibling::dd[1]/text()")
-
         
-        periodic_contribution_vve = response.xpath("//dt[contains(.,'Bijdrage VvE')]/following-sibling::dd[1]/text()").extract()
-        periodic_contribution_periodic = response.xpath("//dt[contains(.,'Periodieke bijdrage')]/following-sibling::dd[1]/text()").extract()
-        periodic_contribution_service = response.xpath("//dt[contains(.,'Servicekosten')]/following-sibling::dd[1]/text()").extract()
-        periodic_contribution = periodic_contribution_vve + periodic_contribution_service + periodic_contribution_periodic
-        periodic_contribution = ', '.join(periodic_contribution).strip()
+        periodic_contribution_vve = self.extract_text(response, "//dt[contains(.,'Bijdrage VvE')]/following-sibling::dd[1]/text()")
+        periodic_contribution_periodic = self.extract_text(response, "//dt[contains(.,'Periodieke bijdrage')]/following-sibling::dd[1]/text()")
+        periodic_contribution_service = self.extract_text(response, "//dt[contains(.,'Servicekosten')]/following-sibling::dd[1]/text()")
+        periodic_contribution = ', '.join([periodic_contribution_vve, periodic_contribution_service, periodic_contribution_periodic]).strip()
+        new_item['periodieke_bijdrage_text'] = periodic_contribution
         #periodic_contribution = re.findall(r'\d+', periodic_contribution)[0] if periodic_contribution else ''
-        new_item['periodieke_bijdrage'] = periodic_contribution
 
-
-        house_type_detail = response.xpath("//dt[contains(.,'Soort woonhuis')]/following-sibling::dd[1]/text()").extract()
-        appartment_type_detail = response.xpath("//dt[contains(.,'Soort appartement')]/following-sibling::dd[1]/text()").extract()
-        property_type_detail = (house_type_detail + appartment_type_detail)
-        new_item['soort_woning'] = ' '.join(property_type_detail).strip()
-
+        house_type_detail = self.extract_text(response, "//dt[contains(.,'Soort woonhuis')]/following-sibling::dd[1]/text()")
+        appartment_type_detail = self.extract_text(response, "//dt[contains(.,'Soort appartement')]/following-sibling::dd[1]/text()")
+        property_type_detail = ', '.join([house_type_detail, appartment_type_detail])
+        new_item['soort_woning'] = property_type_detail
 
         new_item['soort_bouw'] =  self.extract_text(response, "//dt[contains(.,'Soort bouw')]/following-sibling::dd[1]/text()")
 

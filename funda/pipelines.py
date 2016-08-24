@@ -27,7 +27,7 @@ class FundaPipeline(object):
             'woningtype' : dict(item).get('woningtype', ''),
             'gemeente' : dict(item).get('gemeente', ''),
 
-            'periodieke_bijdrage' : dict(item).get('periodieke_bijdrage', ''),
+            'periodieke_bijdrage_text' : dict(item).get('periodieke_bijdrage', ''),
             'soort_woning' : dict(item).get('soort_woning', ''),
             'soort_bouw' : dict(item).get('soort_bouw', ''),
             'perceel_oppervlakte' : dict(item).get('perceel_oppervlakte', ''),

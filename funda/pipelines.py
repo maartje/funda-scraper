@@ -23,7 +23,6 @@ class PreprocessPipeline(object):
         # address info
         item['postcode'] = re.search(r'\d{4} [A-Z]{2}', item['title']).group(0)
         item['gemeente'] = re.search(r'\d{4} [A-Z]{2} \w+', item['title']).group(0).split()[2]
-        item['address'] = re.findall(r'te koop: (.*) \d{4}', item['title'])[0]
         item['straat'] = re.findall(r'te koop: ([a-zA-Z\. -]*) ', item['title'])[0]
         item['huisnummer'] = re.findall(r'\d+', item['title'])[0]
         
@@ -35,6 +34,15 @@ class PreprocessPipeline(object):
 
         # woonoppervlakte
         item['woonoppervlakte'] = re.findall(r'\d+', item['woonoppervlakte_text'])[0] if item['woonoppervlakte_text'] else ''
+
+        # perceel_oppervlakte
+        item['perceel_oppervlakte'] = re.findall(r'\d+', item['perceel_oppervlakte_text'])[0] if item['perceel_oppervlakte_text'] else ''
+        
+        # inpandige ruimte
+        item['inpandige_ruimte'] = re.findall(r'\d+', item['inpandige_ruimte_text'])[0] if item['inpandige_ruimte_text'] else ''
+
+        # buitenruimte
+        item['buitenruimte'] = re.findall(r'\d+', item['buitenruimte_text'])[0] if item['buitenruimte_text'] else ''
 
         # kamers
         rooms = re.findall('\d+ kamer',item['kamers_text'])

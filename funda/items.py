@@ -26,15 +26,20 @@ class FundaItem(scrapy.Item):
 
     gemeente = scrapy.Field()    # title
     postcode = scrapy.Field()    # title
-    address = scrapy.Field()     # title
     straat = scrapy.Field()      # title
     huisnummer = scrapy.Field()  # title
 
-    vraagprijs = scrapy.Field()  # vraagprijs_text
+    vraagprijs = scrapy.Field()  
 
-    bouwjaar = scrapy.Field()    # bouwjaar_text
+    bouwjaar = scrapy.Field()    
     
-    woonoppervlakte = scrapy.Field() # woonoppervlakte_text
+    woonoppervlakte = scrapy.Field() 
+    
+    perceel_oppervlakte = scrapy.Field() 
+    
+    inpandige_ruimte = scrapy.Field() 
+
+    buitenruimte = scrapy.Field()
     
     kamers = scrapy.Field()      # kamers_text
     slaapkamers = scrapy.Field() # kamers_text

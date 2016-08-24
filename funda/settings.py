@@ -66,7 +66,7 @@ ROBOTSTXT_OBEY = True
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'funda.pipelines.PreprocessPipeline': 100,
-#    'funda.pipelines.StoragePipeline': 900,
+    'funda.pipelines.StoragePipeline': 900,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

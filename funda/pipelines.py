@@ -62,35 +62,82 @@ class StoragePipeline(object):
     def process_item(self, item, spider):
         
         house = {
-            'PartitionKey': dict(item).get('gemeente', 'aaa'),
-            'RowKey': dict(item).get('address', 'aaa').replace("  ", "_"),
-            'url' :  dict(item).get('url', ''),
-            'address' : dict(item).get('address', ''),
-            'postcode' : dict(item).get('postcode', ''),
-            'vraagprijs' : dict(item).get('vraagprijs', ''),
-            'bouwjaar' : dict(item).get('bouwjaar', ''),
-            'woonoppervlakte' :  dict(item).get('woonoppervlakte', ''),
-            'kamers':  dict(item).get('kamers', ''),
-            'slaapkamers' : dict(item).get('slaapkamers', ''),
-            'woningtype' : dict(item).get('woningtype', ''),
-            'gemeente' : dict(item).get('gemeente', ''),
+            'PartitionKey': item['gemeente'],
+            'RowKey': item['postcode'].replace("  ", "_") + "_" + item['huisnummer'],
+            
 
-            'periodieke_bijdrage_text' : dict(item).get('periodieke_bijdrage', ''),
+            'url' :  dict(item).get('url', ''),
+            'title' :  dict(item).get('title', ''),
+            'vraagprijs_text' : dict(item).get('vraagprijs_text', ''),
+            'periodieke_bijdrage_text' : dict(item).get('periodieke_bijdrage_text', ''),
+            'bouwjaar_text' : dict(item).get('bouwjaar_text', ''),
+            'woonoppervlakte_text' :  dict(item).get('woonoppervlakte_text', ''),
+            'kamers_text':  dict(item).get('kamers_text', ''),
             'soort_woning' : dict(item).get('soort_woning', ''),
             'soort_bouw' : dict(item).get('soort_bouw', ''),
-            'perceel_oppervlakte' : dict(item).get('perceel_oppervlakte', ''),
             'soort_dak' : dict(item).get('soort_dak', ''),
             'specifiek' : dict(item).get('specifiek', ''),
-            'inpandige_ruimte' : dict(item).get('inpandige_ruimte', ''),
-            'buitenruimte' : dict(item).get('buiten_ruimte', ''),
+            'perceel_oppervlakte_text' : dict(item).get('perceel_oppervlakte_text', ''),
+            'inpandige_ruimte_text' : dict(item).get('inpandige_ruimte_text', ''),
+            'buitenruimte_text' : dict(item).get('buiten_ruimte_text', ''),
             'status' : dict(item).get('status', ''),
             'aanvaarding' : dict(item).get('aanvaarding', ''),
+
+            'inhoud_text' : dict(item).get('inhoud_text', ''),
+            'woonlagen_text' : dict(item).get('woonlagen_text', ''),
+            'badkamers_text' : dict(item).get('badkamers_text', ''),
+            'gelegen_op_text' : dict(item).get('gelegen_op_text', ''),
+            'badkamervoorzieningen' : dict(item).get('badkamervoorzieningen', ''),
+            'externe_bergruimte_text' : dict(item).get('externe_bergruimte_text', ''),
+            'voorzieningen' : dict(item).get('voorzieningen', ''),
+            'energielabel_text' : dict(item).get('energielabel_text', ''),
+            'isolatie' : dict(item).get('isolatie', ''),
+            'verwarming' : dict(item).get('verwarming', ''),
+            'warm_water' : dict(item).get('warm_water', ''),
+            'cv_ketel' : dict(item).get('cv_ketel', ''),
+            'eigendomssituatie_text' : dict(item).get('eigendomssituatie_text', ''),
+            'lasten_text' : dict(item).get('lasten_text', ''),
+            'ligging' : dict(item).get('ligging', ''),
+            'tuin' : dict(item).get('tuin', ''),
+            'achtertuin' : dict(item).get('achtertuin', ''),
+            'voortuin' : dict(item).get('voortuin', ''),
+            'ligging_tuin' : dict(item).get('ligging_tuin', ''),
+            'balkon_of_dakterras' : dict(item).get('balkon_of_dakterras', ''),
+            'schuur_of_berging' : dict(item).get('schuur_of_berging', ''),
+            'garage' : dict(item).get('garage', ''),
+            'garage_capaciteit' : dict(item).get('garage_capaciteit', ''),
+            'parkeergelegenheid' : dict(item).get('parkeergelegenheid', ''),
+            
+            
+            # derived values
+
+            'woningtype' : dict(item).get('woningtype', ''),
+            'gemeente' : dict(item).get('gemeente', ''),
+            'postcode' : dict(item).get('postcode', ''),
+            'straat' : dict(item).get('straat', ''),
+            'huisnummer' : dict(item).get('huisnummer', ''),
+
+            'vraagprijs' : dict(item).get('vraagprijs', ''),
+            'kosten_koper' : dict(item).get('kosten_koper', ''),
+
+            'bouwjaar' : dict(item).get('bouwjaar', ''),
+            
+            'woonoppervlakte' :  dict(item).get('woonoppervlakte', ''),
+            'perceel_oppervlakte' : dict(item).get('perceel_oppervlakte', ''),
+            'inpandige_ruimte' : dict(item).get('inpandige_ruimte', ''),
+            'buitenruimte' : dict(item).get('buitenruimte', ''),
+            
+            'kamers':  dict(item).get('kamers', ''),
+            'slaapkamers' : dict(item).get('slaapkamers', ''),
+
+            'periodieke_bijdrage' : dict(item).get('periodieke_bijdrage', ''),
+
             
 #            'aanbod_jaar' : datetime.datetime.now().year,
 #            'aanbod_maand' : datetime.datetime.now().month,
 #            'sale_date' : dict(item).get('sale_date', '')
         }
-        table_service.insert_entity('HousesForSale', house)        
+        table_service.insert_or_replace_entity('HousesForSale', house)        
         return item
 
 

@@ -2,15 +2,25 @@ import scrapy
 
 class FundaItem(scrapy.Item):
     url = scrapy.Field()
-    title = scrapy.Field()
+    woningtype = scrapy.Field()
+    postcode = scrapy.Field()
     address = scrapy.Field()
-    postal_code = scrapy.Field()
-    price = scrapy.Field()              # Listing price ("Vraagprijs")
-    year_built = scrapy.Field()         # Year built ("Bouwjaar")
-    area = scrapy.Field()               # Built area ("Woonoppervlakte")
-    rooms = scrapy.Field()              # Number of rooms
-    bedrooms = scrapy.Field()           # Number of bedrooms
-    property_type = scrapy.Field()      # House or apartment
-    city = scrapy.Field()
-    posting_date = scrapy.Field()
-    sale_date = scrapy.Field()
+    vraagprijs = scrapy.Field()
+    bouwjaar = scrapy.Field()
+    woonoppervlakte = scrapy.Field()
+    kamers = scrapy.Field()
+    slaapkamers = scrapy.Field()
+    gemeente = scrapy.Field()
+    periodieke_bijdrage = scrapy.Field()
+    soort_woning = scrapy.Field()
+    soort_bouw = scrapy.Field()
+    perceel_oppervlakte = scrapy.Field()
+    
+    soort_dak = scrapy.Field()
+    specifiek = scrapy.Field()
+    inpandige_ruimte = scrapy.Field()
+    buitenruimte = scrapy.Field()
+    
+    
+    
+    

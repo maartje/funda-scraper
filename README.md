@@ -9,7 +9,7 @@ There are two spiders:
 
 After installing [Scrapy](www.scrapy.org), in the project directory simply run the command
 
-`scrapy crawl funda_spider -a place=amsterdam -o amsterdam_for_sale.json`
+`scrapy crawl funda_spider -a place=amsterdam -o amsterdam_for_sale.json -s LOG_LEVEL=ERROR`
 
 to generate a JSON file `amsterdam_for_sale.json` with all houses for sale listed on [http://www.funda.nl/koop/amsterdam/](http://www.funda.nl/koop/amsterdam/) and its subpages. The keyword argument `place` can be used to scrape data from other cities; for example `place=rotterdam` will scrape data from [http://www.funda.nl/koop/rotterdam/](http://www.funda.nl/koop/rotterdam/).
 

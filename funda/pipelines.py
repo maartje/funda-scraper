@@ -6,6 +6,7 @@
 # See: http://doc.item.org/en/latest/topics/item-pipeline.html
 
 from azure.storage.table import TableService, Entity
+import datetime
 
 table_service = TableService(account_name='mlhousing', account_key='RtqHj1/pRK+2WsMjZuql7TbyXOQwk4DRXJ/iLLrShwA8/9uTzxTuqomYaq4IW0szQ6JIdKVAANapJkOge/aGEQ==')
 
@@ -13,21 +14,31 @@ class FundaPipeline(object):
     def process_item(self, item, spider):
         
         house = {
-            'PartitionKey': dict(item).get('city', 'unknown_city'),
-            'RowKey': dict(item).get('address', 'unknown_address').replace("  ", "_"),
+            'PartitionKey': dict(item).get('gemeente', 'aaa'),
+            'RowKey': dict(item).get('address', 'aaa').replace("  ", "_"),
             'url' :  dict(item).get('url', ''),
-            'title' : dict(item).get('title', ''),
             'address' : dict(item).get('address', ''),
-            'postal_code' : dict(item).get('postal_code', ''),
-            'price' : dict(item).get('price', ''),              # Listing price ("Vraagprijs")
-            'year_built' : dict(item).get('year_built', ''),         # Year built ("Bouwjaar")
-            'area' :  dict(item).get('area', ''),               # Built area ("Woonoppervlakte")
-            'rooms':  dict(item).get('rooms', ''),              # Number of rooms
-            'bedrooms' : dict(item).get('bedrooms', ''),           # Number of bedrooms
-            'property_type' : dict(item).get('property_type', ''),      # House or apartment
-            'city' : dict(item).get('city', ''),
-            'posting_date' : dict(item).get('posting_date', ''),
-            'sale_date' : dict(item).get('sale_date', '')
+            'postcode' : dict(item).get('postcode', ''),
+            'vraagprijs' : dict(item).get('vraagprijs', ''),
+            'bouwjaar' : dict(item).get('bouwjaar', ''),
+            'woonoppervlakte' :  dict(item).get('woonoppervlakte', ''),
+            'kamers':  dict(item).get('kamers', ''),
+            'slaapkamers' : dict(item).get('slaapkamers', ''),
+            'woningtype' : dict(item).get('woningtype', ''),
+            'gemeente' : dict(item).get('gemeente', ''),
+
+            'periodieke_bijdrage' : dict(item).get('periodieke_bijdrage', ''),
+            'soort_woning' : dict(item).get('soort_woning', ''),
+            'soort_bouw' : dict(item).get('soort_bouw', ''),
+            'perceel_oppervlakte' : dict(item).get('perceel_oppervlakte', ''),
+            'soort_dak' : dict(item).get('soort_dak', ''),
+            'specifiek' : dict(item).get('specifiek', ''),
+            'inpandige_ruimte' : dict(item).get('inpandige_ruimte', ''),
+            'buitenruimte' : dict(item).get('buiten_ruimte', ''),
+            
+#            'aanbod_jaar' : datetime.datetime.now().year,
+#            'aanbod_maand' : datetime.datetime.now().month,
+#            'sale_date' : dict(item).get('sale_date', '')
         }
         table_service.insert_entity('HousesForSale', house)        
         return item

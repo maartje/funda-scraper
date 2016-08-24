@@ -89,11 +89,11 @@ class FundaSpider(CrawlSpider):
 
         new_item['specifiek'] =  self.extract_text(response, "//dt[contains(.,'Specifiek')]/following-sibling::dd[1]/text()")
 
-        new_item['perceel_oppervlakte'] =  self.extract_text(response, "//dt[contains(.,'Perceeloppervlakte')]/following-sibling::dd[1]/text()")
+        new_item['perceel_oppervlakte_text'] =  self.extract_text(response, "//dt[contains(.,'Perceeloppervlakte')]/following-sibling::dd[1]/text()")
 
-        new_item['inpandige_ruimte'] =  self.extract_text(response, "//dt[contains(.,'Overige inpandige ruimte')]/following-sibling::dd[1]/text()")
+        new_item['inpandige_ruimte_text'] =  self.extract_text(response, "//dt[contains(.,'Overige inpandige ruimte')]/following-sibling::dd[1]/text()")
 
-        new_item['buitenruimte'] =  self.extract_text(response, "//dt[contains(.,'Gebouwgebonden buitenruimte')]/following-sibling::dd[1]/text()")
+        new_item['buitenruimte_text'] =  self.extract_text(response, "//dt[contains(.,'Gebouwgebonden buitenruimte')]/following-sibling::dd[1]/text()")
 
 
         yield new_item

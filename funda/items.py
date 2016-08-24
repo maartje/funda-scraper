@@ -43,6 +43,6 @@ class FundaItem(scrapy.Item):
     
     
     
-    mj = scrapy.Field()
+    # mj = scrapy.Field()
     
     

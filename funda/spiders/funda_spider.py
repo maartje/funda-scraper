@@ -1,4 +1,3 @@
-import re
 import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
@@ -24,10 +23,6 @@ class FundaSpider(CrawlSpider):
             if link.url.count('/') == 6 and link.url.endswith('/'):
                 item = FundaItem()
                 item['url'] = link.url
-                if re.search(r'/appartement-',link.url):
-                    item['woningtype'] = "appartement"
-                elif re.search(r'/huis-',link.url):
-                    item['woningtype'] = "huis"
                 yield scrapy.Request(link.url, callback=self.parse_dir_contents, meta={'item': item})
 
     def parse_dir_contents(self, response):
@@ -36,36 +31,19 @@ class FundaSpider(CrawlSpider):
         title = response.xpath('//title/text()').extract()[0]
         new_item['title'] = title
         
-        new_item['postcode'] = re.search(r'\d{4} [A-Z]{2}', title).group(0)
-        new_item['gemeente'] = re.search(r'\d{4} [A-Z]{2} \w+',title).group(0).split()[2]
-        new_item['address'] = re.findall(r'te koop: (.*) \d{4}',title)[0]
-        straat = re.findall(r'te koop: ([a-zA-Z\. -]*) ',title)
-        new_item['straat'] = straat[0] if straat else ''
-        new_item['huisnummer'] = re.findall(r'\d+',title)[0]
 
         price_dd = self.extract_text(response, "//dt[contains(.,'Vraagprijs')]/following-sibling::dd[1]/text()")
         new_item['vraagprijs_text'] = price_dd
-        price = re.findall(r' \d+.\d+', price_dd)[0].strip().replace('.','')
-        new_item['vraagprijs'] = price
+        
 
         year_built_dd = self.extract_text(response, "//dt[contains(.,'Bouwjaar')]/following-sibling::dd[1]/text()")
         new_item['bouwjaar_text'] = year_built_dd
-        year_built = re.findall(r'\d+', year_built_dd)[0] if year_built_dd else ''
-        new_item['bouwjaar'] = year_built
 
         area_dd = self.extract_text(response, "//dt[contains(.,'Woonoppervlakte')]/following-sibling::dd[1]/text()")
         new_item['woonoppervlakte_text'] = area_dd
-        area = re.findall(r'\d+', area_dd)[0] if area_dd else ''
-        new_item['woonoppervlakte'] = area
 
         rooms_dd = self.extract_text(response, "//dt[contains(.,'Aantal kamers')]/following-sibling::dd[1]/text()")
         new_item['kamers_text'] = rooms_dd
-        rooms = re.findall('\d+ kamer',rooms_dd)
-        rooms = rooms[0].replace(' kamer','') if rooms else ''
-        new_item['kamers'] = rooms
-        bedrooms = re.findall('\d+ slaapkamer',rooms_dd)
-        bedrooms = bedrooms[0].replace(' slaapkamer','') if bedrooms else ''
-        new_item['slaapkamers'] = bedrooms
 
         new_item['status'] =  self.extract_text(response, "//dt[contains(.,'Status')]/following-sibling::dd[1]/text()")
 

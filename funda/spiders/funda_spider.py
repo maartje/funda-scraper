@@ -32,41 +32,46 @@ class FundaSpider(CrawlSpider):
 
     def parse_dir_contents(self, response):
         new_item = response.request.meta['item']
+
         title = response.xpath('//title/text()').extract()[0]
         postal_code = re.search(r'\d{4} [A-Z]{2}', title).group(0)
         city = re.search(r'\d{4} [A-Z]{2} \w+',title).group(0).split()[2]
         address = re.findall(r'te koop: (.*) \d{4}',title)[0]
-        price_dd = response.xpath("//dt[contains(.,'Vraagprijs')]/following-sibling::dd[1]/text()").extract()[0]
-        price = re.findall(r' \d+.\d+', price_dd)[0].strip().replace('.','')
-        year_built_dd = response.xpath("//dt[contains(.,'Bouwjaar')]/following-sibling::dd[1]/text()").extract()
-        year_built = re.findall(r'\d+', year_built_dd[0])[0] if year_built_dd else ''
-        area_dd = response.xpath("//dt[contains(.,'Woonoppervlakte')]/following-sibling::dd[1]/text()").extract()[0]
-        area = re.findall(r'\d+', area_dd)[0]
-        rooms_dd = response.xpath("//dt[contains(.,'Aantal kamers')]/following-sibling::dd[1]/text()").extract()[0]
-        rooms = re.findall('\d+ kamer',rooms_dd)
-        rooms = rooms[0].replace(' kamer','') if rooms else ''
-        bedrooms = re.findall('\d+ slaapkamer',rooms_dd)
-        bedrooms = bedrooms[0].replace(' slaapkamer','') if bedrooms else ''
-
+        new_item['gemeente'] = city
         new_item['postcode'] = postal_code
         new_item['address'] = address
+
+        price_dd = response.xpath("//dt[contains(.,'Vraagprijs')]/following-sibling::dd[1]/text()").extract()[0]
+        price = re.findall(r' \d+.\d+', price_dd)[0].strip().replace('.','')
         new_item['vraagprijs'] = price
+
+
+        year_built_dd = self.extract_text(response, "//dt[contains(.,'Bouwjaar')]/following-sibling::dd[1]/text()")
+        year_built = re.findall(r'\d+', year_built_dd)[0] if year_built_dd else ''
         new_item['bouwjaar'] = year_built
+
+        area_dd = self.extract_text(response, "//dt[contains(.,'Woonoppervlakte')]/following-sibling::dd[1]/text()")
+        area = re.findall(r'\d+', area_dd)[0] if area_dd else ''
         new_item['woonoppervlakte'] = area
+
+        rooms_dd = self.extract_text(response, "//dt[contains(.,'Aantal kamers')]/following-sibling::dd[1]/text()")
+        rooms = re.findall('\d+ kamer',rooms_dd)
+        rooms = rooms[0].replace(' kamer','') if rooms else ''
         new_item['kamers'] = rooms
+
+        bedrooms = re.findall('\d+ slaapkamer',rooms_dd)
+        bedrooms = bedrooms[0].replace(' slaapkamer','') if bedrooms else ''
         new_item['slaapkamers'] = bedrooms
-        new_item['gemeente'] = city
+
         
 
         #additional info
 
-        # status = response.xpath("//dt[contains(.,'Status')]/following-sibling::dd[1]/text()").extract()
-        # status = status[0].strip() if status else ''
-        # new_item['status'] = status
 
-        # acceptance = response.xpath("//dt[contains(.,'Aanvaarding')]/following-sibling::dd[1]/text()").extract()
-        # acceptance = acceptance[0].strip() if acceptance else ''
-        # new_item['acceptance'] = acceptance
+        new_item['status'] =  self.extract_text(response, "//dt[contains(.,'Status')]/following-sibling::dd[1]/text()")
+
+        new_item['aanvaarding'] =  self.extract_text(response, "//dt[contains(.,'Aanvaarding')]/following-sibling::dd[1]/text()")
+
         
         periodic_contribution_vve = response.xpath("//dt[contains(.,'Bijdrage VvE')]/following-sibling::dd[1]/text()").extract()
         periodic_contribution_periodic = response.xpath("//dt[contains(.,'Periodieke bijdrage')]/following-sibling::dd[1]/text()").extract()
@@ -82,25 +87,16 @@ class FundaSpider(CrawlSpider):
         property_type_detail = (house_type_detail + appartment_type_detail)
         new_item['soort_woning'] = ' '.join(property_type_detail).strip()
 
-        soort_bouw = response.xpath("//dt[contains(.,'Soort bouw')]/following-sibling::dd[1]/text()").extract()
-        soort_bouw = soort_bouw[0].strip() if soort_bouw else ''
-        new_item['soort_bouw'] = soort_bouw
 
-        soort_dak = response.xpath("//dt[contains(.,'Soort dak')]/following-sibling::dd[1]/text()").extract()
-        soort_dak = soort_dak[0].strip() if soort_dak else ''
-        new_item['soort_dak'] = soort_dak
+        new_item['soort_bouw'] =  self.extract_text(response, "//dt[contains(.,'Soort bouw')]/following-sibling::dd[1]/text()")
 
-        specifiek = response.xpath("//dt[contains(.,'Specifiek')]/following-sibling::dd[1]/text()").extract()
-        specifiek = specifiek[0].strip() if specifiek else ''
-        new_item['specifiek'] = specifiek
-        
-        percel_area_dd = response.xpath("//dt[contains(.,'Perceeloppervlakte')]/following-sibling::dd[1]/text()").extract()
-        percel_area = re.findall(r'\d+', percel_area_dd[0])[0] if percel_area_dd else ''
-        new_item['perceel_oppervlakte'] = percel_area
+        new_item['soort_dak'] =  self.extract_text(response, "//dt[contains(.,'Soort dak')]/following-sibling::dd[1]/text()")
 
-        inpandige_ruimte = response.xpath("//dt[contains(.,'Overige inpandige ruimte')]/following-sibling::dd[1]/text()").extract()
-        inpandige_ruimte = inpandige_ruimte[0].strip() if inpandige_ruimte else ''
-        new_item['inpandige_ruimte'] = inpandige_ruimte
+        new_item['specifiek'] =  self.extract_text(response, "//dt[contains(.,'Specifiek')]/following-sibling::dd[1]/text()")
+
+        new_item['perceel_oppervlakte'] =  self.extract_text(response, "//dt[contains(.,'Perceeloppervlakte')]/following-sibling::dd[1]/text()")
+
+        new_item['inpandige_ruimte'] =  self.extract_text(response, "//dt[contains(.,'Overige inpandige ruimte')]/following-sibling::dd[1]/text()")
 
         new_item['buitenruimte'] =  self.extract_text(response, "//dt[contains(.,'Gebouwgebonden buitenruimte')]/following-sibling::dd[1]/text()")
 

@@ -35,6 +35,8 @@ class FundaPipeline(object):
             'specifiek' : dict(item).get('specifiek', ''),
             'inpandige_ruimte' : dict(item).get('inpandige_ruimte', ''),
             'buitenruimte' : dict(item).get('buiten_ruimte', ''),
+            'status' : dict(item).get('status', ''),
+            'aanvaarding' : dict(item).get('aanvaarding', ''),
             
 #            'aanbod_jaar' : datetime.datetime.now().year,
 #            'aanbod_maand' : datetime.datetime.now().month,

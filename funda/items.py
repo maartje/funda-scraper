@@ -21,6 +21,8 @@ class FundaItem(scrapy.Item):
     inpandige_ruimte = scrapy.Field()
     buitenruimte = scrapy.Field()
     
+    status = scrapy.Field()
+    aanvaarding = scrapy.Field()
     
     
     

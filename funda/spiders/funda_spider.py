@@ -28,22 +28,16 @@ class FundaSpider(CrawlSpider):
     def parse_dir_contents(self, response):
         new_item = response.request.meta['item']
 
-        title = response.xpath('//title/text()').extract()[0]
-        new_item['title'] = title
-        
+        new_item['title'] = response.xpath('//title/text()').extract()[0]
 
-        price_dd = self.extract_text(response, "//dt[contains(.,'Vraagprijs')]/following-sibling::dd[1]/text()")
-        new_item['vraagprijs_text'] = price_dd
-        
+        new_item['vraagprijs_text'] = self.extract_text(response, "//dt[contains(.,'Vraagprijs')]/following-sibling::dd[1]/text()")
 
-        year_built_dd = self.extract_text(response, "//dt[contains(.,'Bouwjaar')]/following-sibling::dd[1]/text()")
-        new_item['bouwjaar_text'] = year_built_dd
 
-        area_dd = self.extract_text(response, "//dt[contains(.,'Woonoppervlakte')]/following-sibling::dd[1]/text()")
-        new_item['woonoppervlakte_text'] = area_dd
+        new_item['bouwjaar_text'] = self.extract_text(response, "//dt[contains(.,'Bouwjaar')]/following-sibling::dd[1]/text()")
 
-        rooms_dd = self.extract_text(response, "//dt[contains(.,'Aantal kamers')]/following-sibling::dd[1]/text()")
-        new_item['kamers_text'] = rooms_dd
+        new_item['woonoppervlakte_text'] = self.extract_text(response, "//dt[contains(.,'Woonoppervlakte')]/following-sibling::dd[1]/text()")
+
+        new_item['kamers_text'] = self.extract_text(response, "//dt[contains(.,'Aantal kamers')]/following-sibling::dd[1]/text()")
 
         new_item['status'] =  self.extract_text(response, "//dt[contains(.,'Status')]/following-sibling::dd[1]/text()")
 

@@ -28,24 +28,19 @@ class PreprocessPipeline(object):
         item['huisnummer'] = re.findall(r'\d+', item['title'])[0]
         
         # vraagprijs
-        price = re.findall(r' \d+.\d+', item['vraagprijs_text'])[0].strip().replace('.','')
-        item['vraagprijs'] = price
-        
+        item['vraagprijs'] = re.findall(r' \d+.\d+', item['vraagprijs_text'])[0].strip().replace('.','')
+
         # bouwjaar
-        year_built = re.findall(r'\d+', item['bouwjaar_text'])[0] if item['bouwjaar_text'] else ''
-        item['bouwjaar'] = year_built
+        item['bouwjaar'] = re.findall(r'\d+', item['bouwjaar_text'])[0] if item['bouwjaar_text'] else ''
 
         # woonoppervlakte
-        area = re.findall(r'\d+', item['woonoppervlakte_text'])[0] if item['woonoppervlakte_text'] else ''
-        item['woonoppervlakte'] = area
+        item['woonoppervlakte'] = re.findall(r'\d+', item['woonoppervlakte_text'])[0] if item['woonoppervlakte_text'] else ''
 
         # kamers
         rooms = re.findall('\d+ kamer',item['kamers_text'])
-        rooms = rooms[0].replace(' kamer','') if rooms else ''
-        item['kamers'] = rooms
+        item['kamers'] = rooms[0].replace(' kamer','') if rooms else ''
         bedrooms = re.findall('\d+ slaapkamer',item['kamers_text'])
-        bedrooms = bedrooms[0].replace(' slaapkamer','') if bedrooms else ''
-        item['slaapkamers'] = bedrooms
+        item['slaapkamers'] = bedrooms[0].replace(' slaapkamer','') if bedrooms else ''
 
             
             

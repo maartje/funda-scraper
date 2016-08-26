@@ -45,7 +45,8 @@ class PreprocessPipeline(object):
         # buitenruimte
         item['buitenruimte'] = re.findall(r'\d+', item['buitenruimte_text'])[0] if item['buitenruimte_text'] else ''
 
-        item['periodieke_bijdrage'] = re.findall(r'\d+', item['periodieke_bijdrage_text'])[0] if item['periodieke_bijdrage_text'] and re.findall(r'\d+', item['periodieke_bijdrage_text']) else ''
+        periodieke_bijdrage = re.findall(r'\d+ per maand', item['periodieke_bijdrage_text'])[0] if item['periodieke_bijdrage_text'] and re.findall(r'\d+', item['periodieke_bijdrage_text']) else ''
+        item['periodieke_bijdrage'] = periodieke_bijdrage.replace('per maand', '').strip()
 
         # kamers
         rooms = re.findall('\d+ kamer',item['kamers_text'])
@@ -53,8 +54,47 @@ class PreprocessPipeline(object):
         bedrooms = re.findall('\d+ slaapkamer',item['kamers_text'])
         item['slaapkamers'] = bedrooms[0].replace(' slaapkamer','') if bedrooms else ''
 
-            
-            
+        #badkamers en toiletten
+        badkamers = re.findall('\d+ badkamer', item['badkamers_text'])
+        item['badkamers'] = badkamers[0].replace(' badkamer','') if badkamers else ''
+        toiletten = re.findall('\d+ apart', item['badkamers_text'])
+        item['toiletten'] = badkamers[0].replace(' apart','') if badkamers else ''
+
+        #balkon/dakterras    
+        frans_balkon = len(re.findall('(f|F)rans balkon', item['balkon_of_dakterras']))
+        dakterras = len(re.findall('(d|D)akterras', item['balkon_of_dakterras']))
+        balkon = len(re.findall('(b|B)alkon', item['balkon_of_dakterras']))
+        item['frans_balkon'] = frans_balkon > 0
+        item['dakterras'] = dakterras > 0
+        item['balkon'] = balkon > frans_balkon
+        
+        # garage capaciteit
+        garage_capaciteit = re.findall('\d+ auto', item['garage_capaciteit_text'])
+        item['garage_capaciteit'] = garage_capaciteit[0].replace(' auto','') if garage_capaciteit else ''
+
+        # 1.088 m² (8m diep en 11m breed)
+        achtertuin = item['achtertuin'].replace('.','')
+        achtertuin_diepte = re.findall('\d+m diep', achtertuin)
+        item['achtertuin_diepte'] = achtertuin_diepte[0].replace('m diep', '') if achtertuin_diepte else ''
+        achtertuin_breedte = re.findall('\d+m breed', achtertuin)
+        item['achtertuin_breedte'] = achtertuin_breedte[0].replace('m breed', '') if achtertuin_breedte else ''
+        achtertuin_oppervlakte = re.findall('\d+ m', achtertuin)
+        item['achtertuin_oppervlakte'] = achtertuin_oppervlakte[0].replace(' m', '') if achtertuin_oppervlakte else ''
+
+        voortuin = item['voortuin'].replace('.','')
+        voortuin_diepte = re.findall('\d+m diep', voortuin)
+        item['voortuin_diepte'] = voortuin_diepte[0].replace('m diep', '') if voortuin_diepte else ''
+        voortuin_breedte = re.findall('\d+m breed', voortuin)
+        item['voortuin_breedte'] = voortuin_breedte[0].replace('m breed', '') if voortuin_breedte else ''
+        voortuin_oppervlakte = re.findall('\d+ m', voortuin)
+        item['voortuin_oppervlakte'] = voortuin_oppervlakte[0].replace(' m', '') if voortuin_oppervlakte else ''
+        
+        woonlagen = re.findall('\d+ woonla',item['woonlagen_text'])
+        item['woonlagen'] = woonlagen[0].replace(' woonla','') if woonlagen else ''
+        item['kelder'] = "kelder" in item['woonlagen_text']
+        item['vliering'] = "vliering" in item['woonlagen_text']
+        item['zolder'] = "zolder" in item['woonlagen_text']
+    
             
         return item
 
@@ -63,7 +103,7 @@ class StoragePipeline(object):
         
         house = {
             'PartitionKey': item['gemeente'],
-            'RowKey': item['postcode'].replace("  ", "_") + "_" + item['huisnummer'],
+            'RowKey': item['postcode'] + " " + item['huisnummer'],
             
 
             'url' :  dict(item).get('url', ''),

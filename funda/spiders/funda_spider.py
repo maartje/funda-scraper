@@ -112,7 +112,7 @@ class FundaSpider(CrawlSpider):
 
         new_item['garage'] =  self.extract_text(response, "//dt[contains(.,'Soort garage')]/following-sibling::dd[1]/text()")
 
-        new_item['garage_capaciteit'] =  self.extract_text(response, "//dt[contains(.,'Capaciteit')]/following-sibling::dd[1]/text()")
+        new_item['garage_capaciteit_text'] =  self.extract_text(response, "//dt[contains(.,'Capaciteit')]/following-sibling::dd[1]/text()")
 
         new_item['parkeergelegenheid'] =  self.extract_text(response, "//dt[contains(.,'Soort parkeergelegenheid')]/following-sibling::dd[1]/text()")
 

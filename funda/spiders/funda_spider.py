@@ -82,7 +82,7 @@ class FundaSpider(CrawlSpider):
 
         new_item['voorzieningen'] =  self.extract_text(response, "//dt[contains(.,'Voorzieningen')]/following-sibling::dd[1]/text()")
 
-        new_item['energielabel_text'] =  self.extract_text(response, "//dt[contains(.,'nergielabel')]/following-sibling::dd[1]/text()")
+        new_item['energielabel_text'] =  self.extract_text(response, "//span[contains(@class, 'energielabel')]/text()")
 
         new_item['isolatie'] =  self.extract_text(response, "//dt[contains(.,'Isolatie')]/following-sibling::dd[1]/text()")
         
@@ -98,13 +98,13 @@ class FundaSpider(CrawlSpider):
 
         new_item['ligging'] =  self.extract_text(response, "//dt[contains(.,'Ligging')]/following-sibling::dd[1]/text()")
 
-        new_item['tuin'] =  self.extract_text(response, "//dt[contains(.,'Tuin')]/following-sibling::dd[1]/text()")
+        new_item['tuin_text'] =  self.extract_text(response, "//dt[contains(.,'Tuin')]/following-sibling::dd[1]/text()")
 
-        new_item['achtertuin'] =  self.extract_text(response, "//dt[contains(.,'Achtertuin')]/following-sibling::dd[1]/text()")
+        new_item['achtertuin_text'] =  self.extract_text(response, "//dt[contains(.,'Achtertuin')]/following-sibling::dd[1]/text()")
 
-        new_item['voortuin'] =  self.extract_text(response, "//dt[contains(.,'Voortuin')]/following-sibling::dd[1]/text()")
+        new_item['voortuin_text'] =  self.extract_text(response, "//dt[contains(.,'Voortuin')]/following-sibling::dd[1]/text()")
 
-        new_item['ligging_tuin'] =  self.extract_text(response, "//dt[contains(.,'Ligging tuin')]/following-sibling::dd[1]/text()")
+        new_item['ligging_tuin_text'] =  self.extract_text(response, "//dt[contains(.,'Ligging tuin')]/following-sibling::dd[1]/text()")
 
         new_item['balkon_of_dakterras'] =  self.extract_text(response, "//dt[contains(.,'Balkon/dakterras')]/following-sibling::dd[1]/text()")
 

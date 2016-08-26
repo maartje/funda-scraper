@@ -36,10 +36,10 @@ class FundaItem(scrapy.Item):
     eigendomssituatie_text = scrapy.Field()
     lasten_text = scrapy.Field()
     ligging = scrapy.Field()
-    tuin = scrapy.Field()
-    achtertuin = scrapy.Field()
-    voortuin = scrapy.Field()
-    ligging_tuin = scrapy.Field()
+    tuin_text = scrapy.Field()
+    achtertuin_text = scrapy.Field()
+    voortuin_text = scrapy.Field()
+    ligging_tuin_text = scrapy.Field()
     balkon_of_dakterras = scrapy.Field()
     schuur_of_berging = scrapy.Field()
     garage = scrapy.Field()
@@ -88,6 +88,17 @@ class FundaItem(scrapy.Item):
     achtertuin_diepte = scrapy.Field()
     achtertuin_breedte = scrapy.Field()
     achtertuin_oppervlakte = scrapy.Field()
+
+    ligging_tuin = scrapy.Field()
+    achterom = scrapy.Field()
+    
+    achtertuin = scrapy.Field()
+    voortuin = scrapy.Field()
+    zijtuin = scrapy.Field()
+    rondom = scrapy.Field()
+    patio = scrapy.Field()
+    zonneterras = scrapy.Field()
+
 
     woonlagen = scrapy.Field()
     kelder = scrapy.Field()

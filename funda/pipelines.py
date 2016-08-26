@@ -27,25 +27,25 @@ class PreprocessPipeline(object):
         item['huisnummer'] = re.findall(r'\d+', item['title'])[0]
         
         # vraagprijs
-        item['vraagprijs'] = re.findall(r' \d+.\d+', item['vraagprijs_text'])[0].strip().replace('.','')
+        item['vraagprijs'] = re.findall(r' \d+', item['vraagprijs_text'].replace('.',''))[0].strip()
         item['kosten_koper'] = not(re.findall(r' v\.o\.n', item['vraagprijs_text']))
 
         # bouwjaar
         item['bouwjaar'] = re.findall(r'\d+', item['bouwjaar_text'])[0] if item['bouwjaar_text'] else ''
 
         # woonoppervlakte
-        item['woonoppervlakte'] = re.findall(r'\d+', item['woonoppervlakte_text'])[0] if item['woonoppervlakte_text'] else ''
+        item['woonoppervlakte'] = re.findall(r'\d+', item['woonoppervlakte_text'].replace('.',''))[0] if item['woonoppervlakte_text'] else ''
 
         # perceel_oppervlakte
-        item['perceel_oppervlakte'] = re.findall(r'\d+', item['perceel_oppervlakte_text'])[0] if item['perceel_oppervlakte_text'] else ''
+        item['perceel_oppervlakte'] = re.findall(r'\d+', item['perceel_oppervlakte_text'].replace('.',''))[0] if item['perceel_oppervlakte_text'] else ''
         
         # inpandige ruimte
-        item['inpandige_ruimte'] = re.findall(r'\d+', item['inpandige_ruimte_text'])[0] if item['inpandige_ruimte_text'] else ''
+        item['inpandige_ruimte'] = re.findall(r'\d+', item['inpandige_ruimte_text'].replace('.',''))[0] if item['inpandige_ruimte_text'] else ''
 
         # buitenruimte
-        item['buitenruimte'] = re.findall(r'\d+', item['buitenruimte_text'])[0] if item['buitenruimte_text'] else ''
+        item['buitenruimte'] = re.findall(r'\d+', item['buitenruimte_text'].replace('.',''))[0] if item['buitenruimte_text'] else ''
 
-        periodieke_bijdrage = re.findall(r'\d+ per maand', item['periodieke_bijdrage_text'])[0] if item['periodieke_bijdrage_text'] and re.findall(r'\d+', item['periodieke_bijdrage_text']) else ''
+        periodieke_bijdrage = re.findall(r'\d+ per maand', item['periodieke_bijdrage_text'].replace('.',''))[0] if item['periodieke_bijdrage_text'] and re.findall(r'\d+', item['periodieke_bijdrage_text']) else ''
         item['periodieke_bijdrage'] = periodieke_bijdrage.replace('per maand', '').strip()
 
         # kamers
@@ -73,7 +73,7 @@ class PreprocessPipeline(object):
         item['garage_capaciteit'] = garage_capaciteit[0].replace(' auto','') if garage_capaciteit else ''
 
         # 1.088 m² (8m diep en 11m breed)
-        achtertuin = item['achtertuin'].replace('.','')
+        achtertuin = item['achtertuin_text'].replace('.','')
         achtertuin_diepte = re.findall('\d+m diep', achtertuin)
         item['achtertuin_diepte'] = achtertuin_diepte[0].replace('m diep', '') if achtertuin_diepte else ''
         achtertuin_breedte = re.findall('\d+m breed', achtertuin)
@@ -81,13 +81,33 @@ class PreprocessPipeline(object):
         achtertuin_oppervlakte = re.findall('\d+ m', achtertuin)
         item['achtertuin_oppervlakte'] = achtertuin_oppervlakte[0].replace(' m', '') if achtertuin_oppervlakte else ''
 
-        voortuin = item['voortuin'].replace('.','')
+        voortuin = item['voortuin_text'].replace('.','')
         voortuin_diepte = re.findall('\d+m diep', voortuin)
         item['voortuin_diepte'] = voortuin_diepte[0].replace('m diep', '') if voortuin_diepte else ''
         voortuin_breedte = re.findall('\d+m breed', voortuin)
         item['voortuin_breedte'] = voortuin_breedte[0].replace('m breed', '') if voortuin_breedte else ''
         voortuin_oppervlakte = re.findall('\d+ m', voortuin)
         item['voortuin_oppervlakte'] = voortuin_oppervlakte[0].replace(' m', '') if voortuin_oppervlakte else ''
+
+        item['achtertuin'] = len(item['achtertuin_text'].strip()) > 0 or 'chtertuin' in item['tuin_text']
+        item['voortuin'] = len(item['voortuin_text'].strip()) > 0 or 'oortuin' in item['tuin_text']
+        item['zijtuin'] = 'ijtuin' in item['tuin_text']
+        item['rondom'] = 'rondom' in item['tuin_text']
+        item['patio'] = 'atio' in item['tuin_text']
+        item['zonneterras'] = 'onneterras' in item['tuin_text']
+
+        if "noorden" in item['ligging_tuin_text']: item['ligging_tuin'] = 'N' 
+        if "noordwest" in item['ligging_tuin_text']: item['ligging_tuin'] = 'NW' 
+        if "noordoost" in item['ligging_tuin_text']: item['ligging_tuin'] = 'NO' 
+        if "westen" in item['ligging_tuin_text']: item['ligging_tuin'] = 'W' 
+        if "oosten" in item['ligging_tuin_text']: item['ligging_tuin'] = 'O' 
+        if "zuidwest" in item['ligging_tuin_text']: item['ligging_tuin'] = 'ZW' 
+        if "zuidoost" in item['ligging_tuin_text']: item['ligging_tuin'] = 'ZO' 
+        if "zuiden" in item['ligging_tuin_text']: item['ligging_tuin'] = 'Z' 
+
+        item['achterom'] =  "achterom" in item['ligging_tuin_text']
+        
+
         
         woonlagen = re.findall('\d+ woonla',item['woonlagen_text'])
         item['woonlagen'] = woonlagen[0].replace(' woonla','') if woonlagen else ''

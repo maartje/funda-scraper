@@ -26,47 +26,50 @@ class PreprocessPipeline(object):
         item['postcode_regio'] = postcode[0:2]
         item['postcode_wijk'] = postcode[0:4]
         item['gemeente'] = re.search(r'\d{4} [A-Z]{2} \w+', item['title']).group(0).split()[2]
-        straat = re.findall(r'te koop: ([a-zA-Z\.-]*) ', item['title'])
-        item['straat'] = straat[0] if straat else re.findall(r'te koop: ([a-zA-Z\.-]*)', item['title'])[0]
+        straat = re.findall(r'te koop: ([a-zA-Z\.-]*) ', item['title']) + re.findall(r'Verkocht: ([a-zA-Z\.-]*) ', item['title'])
+        item['straat'] = straat[0] if straat else (re.findall(r'te koop: ([a-zA-Z\.-]*)', item['title']) + re.findall(r'Verkocht: ([a-zA-Z\.-]*)', item['title']))[0]
         item['huisnummer'] = re.findall(r'\d+', item['title'])[0]
         
         # vraagprijs
-        item['vraagprijs'] = re.findall(r' \d+', item['vraagprijs_text'].replace('.',''))[0].strip()
+        item['vraagprijs'] = int(re.findall(r'\d+', item['vraagprijs_text'].replace('.',''))[0].strip())
         item['kosten_koper'] = not(re.findall(r' v\.o\.n', item['vraagprijs_text']))
 
         # bouwjaar
-        item['bouwjaar'] = re.findall(r'\d+', item['bouwjaar_text'])[0] if item['bouwjaar_text'] else ''
+        item['bouwjaar'] = int(re.findall(r'\d+', item['bouwjaar_text'])[0]) if item['bouwjaar_text'] else None
 
         # woonoppervlakte
-        item['woonoppervlakte'] = re.findall(r'\d+', item['woonoppervlakte_text'].replace('.',''))[0] if item['woonoppervlakte_text'] else ''
+        item['woonoppervlakte'] = int(re.findall(r'\d+', item['woonoppervlakte_text'].replace('.',''))[0]) if item['woonoppervlakte_text'] else None
 
-        item['inhoud'] = re.findall(r'\d+', item['inhoud_text'].replace('.',''))[0] if item['inhoud_text'] else ''
+        item['inhoud'] = int(re.findall(r'\d+', item['inhoud_text'].replace('.',''))[0]) if item['inhoud_text'] else None
 
         # perceel_oppervlakte
-        item['perceel_oppervlakte'] = re.findall(r'\d+', item['perceel_oppervlakte_text'].replace('.',''))[0] if item['perceel_oppervlakte_text'] else ''
+        item['perceel_oppervlakte'] = int(re.findall(r'\d+', item['perceel_oppervlakte_text'].replace('.',''))[0]) if item['perceel_oppervlakte_text'] else None
         
         # inpandige ruimte
-        item['inpandige_ruimte'] = re.findall(r'\d+', item['inpandige_ruimte_text'].replace('.',''))[0] if item['inpandige_ruimte_text'] else ''
+        item['inpandige_ruimte'] = int(re.findall(r'\d+', item['inpandige_ruimte_text'].replace('.',''))[0]) if item['inpandige_ruimte_text'] else None
 
-        item['externe_bergruimte'] = re.findall(r'\d+', item['externe_bergruimte_text'].replace('.',''))[0] if item['externe_bergruimte_text'] else ''
+        item['externe_bergruimte'] = int(re.findall(r'\d+', item['externe_bergruimte_text'].replace('.',''))[0]) if item['externe_bergruimte_text'] else None
 
         # buitenruimte
-        item['buitenruimte'] = re.findall(r'\d+', item['buitenruimte_text'].replace('.',''))[0] if item['buitenruimte_text'] else ''
+        item['buitenruimte'] = int(re.findall(r'\d+', item['buitenruimte_text'].replace('.',''))[0]) if item['buitenruimte_text'] else None
 
-        periodieke_bijdrage = re.findall(r'\d+ per maand', item['periodieke_bijdrage_text'].replace('.',''))[0] if item['periodieke_bijdrage_text'] and re.findall(r'\d+', item['periodieke_bijdrage_text']) else ''
-        item['periodieke_bijdrage'] = periodieke_bijdrage.replace('per maand', '').strip()
+        if item['periodieke_bijdrage_text'] and re.findall(r'\d+', item['periodieke_bijdrage_text']):
+            periodieke_bijdrage = re.findall(r'\d+ per maand', item['periodieke_bijdrage_text'].replace('.',''))[0]  
+            item['periodieke_bijdrage'] = int(periodieke_bijdrage.replace('per maand', '').strip())
+        else: 
+            item['periodieke_bijdrage'] = None
 
         # kamers
         rooms = re.findall('\d+ kamer',item['kamers_text'])
-        item['kamers'] = rooms[0].replace(' kamer','') if rooms else ''
+        item['kamers'] = int(rooms[0].replace(' kamer','')) if rooms else None
         bedrooms = re.findall('\d+ slaapkamer',item['kamers_text'])
-        item['slaapkamers'] = bedrooms[0].replace(' slaapkamer','') if bedrooms else ''
+        item['slaapkamers'] = int(bedrooms[0].replace(' slaapkamer','')) if bedrooms else None
 
         #badkamers en toiletten
         badkamers = re.findall('\d+ badkamer', item['badkamers_text'])
-        item['badkamers'] = badkamers[0].replace(' badkamer','') if badkamers else ''
+        item['badkamers'] = int(badkamers[0].replace(' badkamer','')) if badkamers else None
         toiletten = re.findall('\d+ apart', item['badkamers_text'])
-        item['toiletten'] = badkamers[0].replace(' apart','') if badkamers else ''
+        item['toiletten'] = int(toiletten[0].replace(' apart','')) if toiletten else None
 
         #balkon/dakterras    
         item['frans_balkon'] = "frans balkon" in item['balkon_of_dakterras']
@@ -75,24 +78,24 @@ class PreprocessPipeline(object):
         
         # garage capaciteit
         garage_capaciteit = re.findall('\d+ auto', item['garage_capaciteit_text'])
-        item['garage_capaciteit'] = garage_capaciteit[0].replace(' auto','') if garage_capaciteit else ''
+        item['garage_capaciteit'] = int(garage_capaciteit[0].replace(' auto','')) if garage_capaciteit else None
 
         # 1.088 m² (8m diep en 11m breed)
         achtertuin = item['achtertuin_text'].replace('.','')
         achtertuin_diepte = re.findall('\d+m diep', achtertuin)
-        item['achtertuin_diepte'] = achtertuin_diepte[0].replace('m diep', '') if achtertuin_diepte else ''
+        item['achtertuin_diepte'] = int(achtertuin_diepte[0].replace('m diep', '')) if achtertuin_diepte else None
         achtertuin_breedte = re.findall('\d+m breed', achtertuin)
-        item['achtertuin_breedte'] = achtertuin_breedte[0].replace('m breed', '') if achtertuin_breedte else ''
+        item['achtertuin_breedte'] = int(achtertuin_breedte[0].replace('m breed', '')) if achtertuin_breedte else None
         achtertuin_oppervlakte = re.findall('\d+ m', achtertuin)
-        item['achtertuin_oppervlakte'] = achtertuin_oppervlakte[0].replace(' m', '') if achtertuin_oppervlakte else ''
+        item['achtertuin_oppervlakte'] = int(achtertuin_oppervlakte[0].replace(' m', '')) if achtertuin_oppervlakte else None
 
         voortuin = item['voortuin_text'].replace('.','')
         voortuin_diepte = re.findall('\d+m diep', voortuin)
-        item['voortuin_diepte'] = voortuin_diepte[0].replace('m diep', '') if voortuin_diepte else ''
+        item['voortuin_diepte'] = int(voortuin_diepte[0].replace('m diep', '')) if voortuin_diepte else None
         voortuin_breedte = re.findall('\d+m breed', voortuin)
-        item['voortuin_breedte'] = voortuin_breedte[0].replace('m breed', '') if voortuin_breedte else ''
+        item['voortuin_breedte'] = int(voortuin_breedte[0].replace('m breed', '')) if voortuin_breedte else None
         voortuin_oppervlakte = re.findall('\d+ m', voortuin)
-        item['voortuin_oppervlakte'] = voortuin_oppervlakte[0].replace(' m', '') if voortuin_oppervlakte else ''
+        item['voortuin_oppervlakte'] = int(voortuin_oppervlakte[0].replace(' m', '')) if voortuin_oppervlakte else None
 
         item['achtertuin'] = len(item['achtertuin_text'].strip()) > 0 or 'achtertuin' in item['tuin_text']
         item['voortuin'] = len(item['voortuin_text'].strip()) > 0 or 'voortuin' in item['tuin_text']
@@ -116,7 +119,7 @@ class PreprocessPipeline(object):
 
         
         woonlagen = re.findall('\d+ woonla',item['woonlagen_text'])
-        item['woonlagen'] = woonlagen[0].replace(' woonla','') if woonlagen else ''
+        item['woonlagen'] = int(woonlagen[0].replace(' woonla','')) if woonlagen else None
         item['kelder'] = "kelder" in item['woonlagen_text']
         item['vliering'] = "vliering" in item['woonlagen_text']
         item['zolder'] = "zolder" in item['woonlagen_text']
@@ -124,7 +127,7 @@ class PreprocessPipeline(object):
         if "begane grond" in item['gelegen_op_text']: 
             item['verdieping'] = 0
         else:
-            item['verdieping'] = re.findall(r'\d+', item['gelegen_op_text'])[0] if item['gelegen_op_text'] else ''
+            item['verdieping'] = int(re.findall(r'\d+', item['gelegen_op_text'])[0]) if item['gelegen_op_text'] else None
             
         
         eigendoms_info = (item["eigendomssituatie_text"] + item["lasten_text"]).replace('.', '')
@@ -136,18 +139,18 @@ class PreprocessPipeline(object):
             item['eigendomssituatie'] = ''
         
         eind_datum_erfpacht = re.findall(r'\d{2}-\d{2}-\d{4}', item["eigendomssituatie_text"] + item["lasten_text"])
-        item['eind_datum_erfpacht'] = eind_datum_erfpacht[0] if eind_datum_erfpacht else ''
+        item['eind_datum_erfpacht'] = int(eind_datum_erfpacht[0][-4:]) if eind_datum_erfpacht else None
         
         kosten_erfpacht = re.findall(r'(\d+,\d+|\d+) per jaar', eigendoms_info)
         afgekocht = "afgekocht" in (eigendoms_info)
         if afgekocht or item['eigendomssituatie'] == 'volle eigendom': 
-            item["kosten_erfpacht"] = 0 
+            item["kosten_erfpacht"] = 0.0 
         elif kosten_erfpacht: 
-            item["kosten_erfpacht"] = kosten_erfpacht[0].replace(' per jaar', '')  
+            item["kosten_erfpacht"] = float(kosten_erfpacht[0].replace(' per jaar', '').replace(',', '.'))  
         elif 'einddatum' in eigendoms_info:
-            item["kosten_erfpacht"] = 0 
+            item["kosten_erfpacht"] = 0.0 
         else: 
-            item["kosten_erfpacht"] = ''
+            item["kosten_erfpacht"] = None
         return item
 
 class StoragePipeline(object):
@@ -258,11 +261,9 @@ class StoragePipeline(object):
             'eind_datum_erfpacht' : dict(item).get('eind_datum_erfpacht', ''),
             'kosten_erfpacht' : dict(item).get('kosten_erfpacht', ''),
 
-#            'aanbod_jaar' : datetime.datetime.now().year,
-#            'aanbod_maand' : datetime.datetime.now().month,
-#            'sale_date' : dict(item).get('sale_date', '')
         }
-        table_service.insert_or_replace_entity('HousesForSale', house)        
+        # table_service.insert_or_replace_entity('HousesForSale', house)        
+        table_service.insert_or_replace_entity('HouseData', house)        
         return item
 
 

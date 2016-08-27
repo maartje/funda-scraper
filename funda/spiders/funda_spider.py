@@ -15,7 +15,7 @@ class FundaSpider(CrawlSpider):
 
     def extract_text(self, response, xpath):
         results = response.xpath(xpath).extract()
-        return results[0].strip() if results else ''
+        return results[0].strip().lower() if results else ''
 
     def parse(self, response):
         links = self.le1.extract_links(response)

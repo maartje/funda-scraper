@@ -52,6 +52,8 @@ class FundaItem(scrapy.Item):
 
     gemeente = scrapy.Field()    # title
     postcode = scrapy.Field()    # title
+    postcode_regio = scrapy.Field()   # title
+    postcode_wijk = scrapy.Field()    # title
     straat = scrapy.Field()      # title
     huisnummer = scrapy.Field()  # title
 
@@ -74,7 +76,6 @@ class FundaItem(scrapy.Item):
     badkamers = scrapy.Field() # badkamers_text
     toiletten = scrapy.Field() # badkamers_text
     
-    
     periodieke_bijdrage = scrapy.Field()
     
     frans_balkon = scrapy.Field() # balkon_of_dakterras
@@ -95,7 +96,7 @@ class FundaItem(scrapy.Item):
     achtertuin = scrapy.Field()
     voortuin = scrapy.Field()
     zijtuin = scrapy.Field()
-    rondom = scrapy.Field()
+    tuin_rondom = scrapy.Field()
     patio = scrapy.Field()
     zonneterras = scrapy.Field()
 
@@ -108,3 +109,12 @@ class FundaItem(scrapy.Item):
     garage_capaciteit = scrapy.Field()
 
     
+    externe_bergruimte = scrapy.Field()
+    verdieping = scrapy.Field()
+
+    inhoud = scrapy.Field()
+    
+    eigendomssituatie = scrapy.Field()
+    eind_datum_erfpacht = scrapy.Field()
+    kosten_erfpacht = scrapy.Field()
+

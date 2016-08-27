@@ -21,9 +21,13 @@ class PreprocessPipeline(object):
             item['woningtype'] = "huis"
             
         # address info
-        item['postcode'] = re.search(r'\d{4} [A-Z]{2}', item['title']).group(0)
+        postcode = re.search(r'\d{4} [A-Z]{2}', item['title']).group(0)
+        item['postcode'] = postcode
+        item['postcode_regio'] = postcode[0:2]
+        item['postcode_wijk'] = postcode[0:4]
         item['gemeente'] = re.search(r'\d{4} [A-Z]{2} \w+', item['title']).group(0).split()[2]
-        item['straat'] = re.findall(r'te koop: ([a-zA-Z\. -]*) ', item['title'])[0]
+        straat = re.findall(r'te koop: ([a-zA-Z\.-]*) ', item['title'])
+        item['straat'] = straat[0] if straat else re.findall(r'te koop: ([a-zA-Z\.-]*)', item['title'])[0]
         item['huisnummer'] = re.findall(r'\d+', item['title'])[0]
         
         # vraagprijs
@@ -36,11 +40,15 @@ class PreprocessPipeline(object):
         # woonoppervlakte
         item['woonoppervlakte'] = re.findall(r'\d+', item['woonoppervlakte_text'].replace('.',''))[0] if item['woonoppervlakte_text'] else ''
 
+        item['inhoud'] = re.findall(r'\d+', item['inhoud_text'].replace('.',''))[0] if item['inhoud_text'] else ''
+
         # perceel_oppervlakte
         item['perceel_oppervlakte'] = re.findall(r'\d+', item['perceel_oppervlakte_text'].replace('.',''))[0] if item['perceel_oppervlakte_text'] else ''
         
         # inpandige ruimte
         item['inpandige_ruimte'] = re.findall(r'\d+', item['inpandige_ruimte_text'].replace('.',''))[0] if item['inpandige_ruimte_text'] else ''
+
+        item['externe_bergruimte'] = re.findall(r'\d+', item['externe_bergruimte_text'].replace('.',''))[0] if item['externe_bergruimte_text'] else ''
 
         # buitenruimte
         item['buitenruimte'] = re.findall(r'\d+', item['buitenruimte_text'].replace('.',''))[0] if item['buitenruimte_text'] else ''
@@ -61,12 +69,9 @@ class PreprocessPipeline(object):
         item['toiletten'] = badkamers[0].replace(' apart','') if badkamers else ''
 
         #balkon/dakterras    
-        frans_balkon = len(re.findall('(f|F)rans balkon', item['balkon_of_dakterras']))
-        dakterras = len(re.findall('(d|D)akterras', item['balkon_of_dakterras']))
-        balkon = len(re.findall('(b|B)alkon', item['balkon_of_dakterras']))
-        item['frans_balkon'] = frans_balkon > 0
-        item['dakterras'] = dakterras > 0
-        item['balkon'] = balkon > frans_balkon
+        item['frans_balkon'] = "frans balkon" in item['balkon_of_dakterras']
+        item['dakterras'] = "dakterras" in item['balkon_of_dakterras']
+        item['balkon'] = len(re.findall('balkon', item['balkon_of_dakterras'])) > len(re.findall('frans balkon', item['balkon_of_dakterras']))
         
         # garage capaciteit
         garage_capaciteit = re.findall('\d+ auto', item['garage_capaciteit_text'])
@@ -89,21 +94,22 @@ class PreprocessPipeline(object):
         voortuin_oppervlakte = re.findall('\d+ m', voortuin)
         item['voortuin_oppervlakte'] = voortuin_oppervlakte[0].replace(' m', '') if voortuin_oppervlakte else ''
 
-        item['achtertuin'] = len(item['achtertuin_text'].strip()) > 0 or 'chtertuin' in item['tuin_text']
-        item['voortuin'] = len(item['voortuin_text'].strip()) > 0 or 'oortuin' in item['tuin_text']
-        item['zijtuin'] = 'ijtuin' in item['tuin_text']
-        item['rondom'] = 'rondom' in item['tuin_text']
-        item['patio'] = 'atio' in item['tuin_text']
-        item['zonneterras'] = 'onneterras' in item['tuin_text']
+        item['achtertuin'] = len(item['achtertuin_text'].strip()) > 0 or 'achtertuin' in item['tuin_text']
+        item['voortuin'] = len(item['voortuin_text'].strip()) > 0 or 'voortuin' in item['tuin_text']
+        item['zijtuin'] = 'zijtuin' in item['tuin_text']
+        item['tuin_rondom'] = 'rondom' in item['tuin_text']
+        item['patio'] = 'patio' in item['tuin_text']
+        item['zonneterras'] = 'zonneterras' in item['tuin_text']
 
-        if "noorden" in item['ligging_tuin_text']: item['ligging_tuin'] = 'N' 
         if "noordwest" in item['ligging_tuin_text']: item['ligging_tuin'] = 'NW' 
-        if "noordoost" in item['ligging_tuin_text']: item['ligging_tuin'] = 'NO' 
-        if "westen" in item['ligging_tuin_text']: item['ligging_tuin'] = 'W' 
-        if "oosten" in item['ligging_tuin_text']: item['ligging_tuin'] = 'O' 
-        if "zuidwest" in item['ligging_tuin_text']: item['ligging_tuin'] = 'ZW' 
-        if "zuidoost" in item['ligging_tuin_text']: item['ligging_tuin'] = 'ZO' 
-        if "zuiden" in item['ligging_tuin_text']: item['ligging_tuin'] = 'Z' 
+        elif "noordoost" in item['ligging_tuin_text']: item['ligging_tuin'] = 'NO' 
+        elif "zuidwest" in item['ligging_tuin_text']: item['ligging_tuin'] = 'ZW' 
+        elif "zuidoost" in item['ligging_tuin_text']: item['ligging_tuin'] = 'ZO' 
+        elif "noorden" in item['ligging_tuin_text']: item['ligging_tuin'] = 'N' 
+        elif "westen" in item['ligging_tuin_text']: item['ligging_tuin'] = 'W' 
+        elif "oosten" in item['ligging_tuin_text']: item['ligging_tuin'] = 'O' 
+        elif "zuiden" in item['ligging_tuin_text']: item['ligging_tuin'] = 'Z' 
+        else: item['ligging_tuin'] = ''
 
         item['achterom'] =  "achterom" in item['ligging_tuin_text']
         
@@ -115,7 +121,33 @@ class PreprocessPipeline(object):
         item['vliering'] = "vliering" in item['woonlagen_text']
         item['zolder'] = "zolder" in item['woonlagen_text']
     
+        if "begane grond" in item['gelegen_op_text']: 
+            item['verdieping'] = 0
+        else:
+            item['verdieping'] = re.findall(r'\d+', item['gelegen_op_text'])[0] if item['gelegen_op_text'] else ''
             
+        
+        eigendoms_info = (item["eigendomssituatie_text"] + item["lasten_text"]).replace('.', '')
+        if "erfpacht" in eigendoms_info:
+            item['eigendomssituatie'] = 'erfpacht'
+        elif "volle eigendom" in item["eigendomssituatie_text"]:
+            item['eigendomssituatie'] = 'volle eigendom'
+        else:
+            item['eigendomssituatie'] = ''
+        
+        eind_datum_erfpacht = re.findall(r'\d{2}-\d{2}-\d{4}', item["eigendomssituatie_text"] + item["lasten_text"])
+        item['eind_datum_erfpacht'] = eind_datum_erfpacht[0] if eind_datum_erfpacht else ''
+        
+        kosten_erfpacht = re.findall(r'(\d+,\d+|\d+) per jaar', eigendoms_info)
+        afgekocht = "afgekocht" in (eigendoms_info)
+        if afgekocht or item['eigendomssituatie'] == 'volle eigendom': 
+            item["kosten_erfpacht"] = 0 
+        elif kosten_erfpacht: 
+            item["kosten_erfpacht"] = kosten_erfpacht[0].replace(' per jaar', '')  
+        elif 'einddatum' in eigendoms_info:
+            item["kosten_erfpacht"] = 0 
+        else: 
+            item["kosten_erfpacht"] = ''
         return item
 
 class StoragePipeline(object):
@@ -125,7 +157,6 @@ class StoragePipeline(object):
             'PartitionKey': item['gemeente'],
             'RowKey': item['postcode'] + " " + item['huisnummer'],
             
-
             'url' :  dict(item).get('url', ''),
             'title' :  dict(item).get('title', ''),
             'vraagprijs_text' : dict(item).get('vraagprijs_text', ''),
@@ -139,7 +170,7 @@ class StoragePipeline(object):
             'specifiek' : dict(item).get('specifiek', ''),
             'perceel_oppervlakte_text' : dict(item).get('perceel_oppervlakte_text', ''),
             'inpandige_ruimte_text' : dict(item).get('inpandige_ruimte_text', ''),
-            'buitenruimte_text' : dict(item).get('buiten_ruimte_text', ''),
+            'buitenruimte_text' : dict(item).get('buitenruimte_text', ''),
             'status' : dict(item).get('status', ''),
             'aanvaarding' : dict(item).get('aanvaarding', ''),
 
@@ -158,14 +189,14 @@ class StoragePipeline(object):
             'eigendomssituatie_text' : dict(item).get('eigendomssituatie_text', ''),
             'lasten_text' : dict(item).get('lasten_text', ''),
             'ligging' : dict(item).get('ligging', ''),
-            'tuin' : dict(item).get('tuin', ''),
-            'achtertuin' : dict(item).get('achtertuin', ''),
-            'voortuin' : dict(item).get('voortuin', ''),
-            'ligging_tuin' : dict(item).get('ligging_tuin', ''),
+            'tuin_text' : dict(item).get('tuin_text', ''),
+            'achtertuin_text' : dict(item).get('achtertuin_text', ''),
+            'voortuin_text' : dict(item).get('voortuin_text', ''),
+            'ligging_tuin_text' : dict(item).get('ligging_tuin_text', ''),
             'balkon_of_dakterras' : dict(item).get('balkon_of_dakterras', ''),
             'schuur_of_berging' : dict(item).get('schuur_of_berging', ''),
             'garage' : dict(item).get('garage', ''),
-            'garage_capaciteit' : dict(item).get('garage_capaciteit', ''),
+            'garage_capaciteit_text' : dict(item).get('garage_capaciteit_text', ''),
             'parkeergelegenheid' : dict(item).get('parkeergelegenheid', ''),
             
             
@@ -174,6 +205,8 @@ class StoragePipeline(object):
             'woningtype' : dict(item).get('woningtype', ''),
             'gemeente' : dict(item).get('gemeente', ''),
             'postcode' : dict(item).get('postcode', ''),
+            'postcode_regio' : dict(item).get('postcode_regio', ''),
+            'postcode_wijk' : dict(item).get('postcode_wijk', ''),
             'straat' : dict(item).get('straat', ''),
             'huisnummer' : dict(item).get('huisnummer', ''),
 
@@ -190,9 +223,41 @@ class StoragePipeline(object):
             'kamers':  dict(item).get('kamers', ''),
             'slaapkamers' : dict(item).get('slaapkamers', ''),
 
+            'badkamers':  dict(item).get('badkamers', ''),
+            'toiletten':  dict(item).get('toiletten', ''),
+
             'periodieke_bijdrage' : dict(item).get('periodieke_bijdrage', ''),
 
+            'frans_balkon' : dict(item).get('frans_balkon', ''),
+            'dakterras' : dict(item).get('dakterras', ''),
+            'balkon' : dict(item).get('balkon', ''),
+            'voortuin_diepte' : dict(item).get('voortuin_diepte', ''),
+            'voortuin_breedte' : dict(item).get('voortuin_breedte', ''),
+            'voortuin_oppervlakte' : dict(item).get('voortuin_oppervlakte', ''),
+            'achtertuin_diepte' : dict(item).get('achtertuin_diepte', ''),
+            'achtertuin_breedte' : dict(item).get('achtertuin_breedte', ''),
+            'achtertuin_oppervlakte' : dict(item).get('achtertuin_oppervlakte', ''),
+            'ligging_tuin' : dict(item).get('ligging_tuin', ''),
+            'achterom' : dict(item).get('achterom', ''),
+            'achtertuin' : dict(item).get('achtertuin', ''),
+            'voortuin' : dict(item).get('voortuin', ''),
+            'zijtuin' : dict(item).get('zijtuin', ''),
+            'tuin_rondom' : dict(item).get('tuin_rondom', ''),
+            'patio' : dict(item).get('patio', ''),
+            'zonneterras' : dict(item).get('zonneterras', ''),
+            'woonlagen' : dict(item).get('woonlagen', ''),
+            'kelder' : dict(item).get('kelder', ''),
+            'vliering' : dict(item).get('vliering', ''),
+            'zolder' : dict(item).get('zolder', ''),
+            'garage_capaciteit' : dict(item).get('garage_capaciteit', ''),
+            'externe_bergruimte' : dict(item).get('externe_bergruimte', ''),
+            'verdieping' : dict(item).get('verdieping', ''),
+            'inhoud' : dict(item).get('inhoud', ''),
             
+            'eigendomssituatie' : dict(item).get('eigendomssituatie', ''),
+            'eind_datum_erfpacht' : dict(item).get('eind_datum_erfpacht', ''),
+            'kosten_erfpacht' : dict(item).get('kosten_erfpacht', ''),
+
 #            'aanbod_jaar' : datetime.datetime.now().year,
 #            'aanbod_maand' : datetime.datetime.now().month,
 #            'sale_date' : dict(item).get('sale_date', '')

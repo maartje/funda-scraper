@@ -26,12 +26,12 @@ class FundaSpider(CrawlSpider):
                 yield scrapy.Request(link.url, callback=self.parse_dir_contents, meta={'item': item})
 
     def parse_dir_contents(self, response):
+
         new_item = response.request.meta['item']
 
         new_item['title'] = response.xpath('//title/text()').extract()[0]
 
         new_item['vraagprijs_text'] = self.extract_text(response, "//dt[contains(.,'Vraagprijs')]/following-sibling::dd[1]/text()")
-
 
         new_item['bouwjaar_text'] = self.extract_text(response, "//dt[contains(.,'Bouwjaar')]/following-sibling::dd[1]/text()")
 
@@ -43,16 +43,15 @@ class FundaSpider(CrawlSpider):
 
         new_item['aanvaarding'] =  self.extract_text(response, "//dt[contains(.,'Aanvaarding')]/following-sibling::dd[1]/text()")
         
-        periodic_contribution_vve = self.extract_text(response, "//dt[contains(.,'Bijdrage VvE')]/following-sibling::dd[1]/text()")
-        periodic_contribution_periodic = self.extract_text(response, "//dt[contains(.,'Periodieke bijdrage')]/following-sibling::dd[1]/text()")
-        periodic_contribution_service = self.extract_text(response, "//dt[contains(.,'Servicekosten')]/following-sibling::dd[1]/text()")
-        periodic_contribution = ' '.join([periodic_contribution_vve, periodic_contribution_service, periodic_contribution_periodic]).strip()
-        new_item['periodieke_bijdrage_text'] = periodic_contribution
+        new_item['vve_bijdrage_text'] = self.extract_text(response, "//dt[contains(.,'Bijdrage VvE')]/following-sibling::dd[1]/text()")
+        
+        new_item['periodieke_bijdrage_text'] = self.extract_text(response, "//dt[contains(.,'Periodieke bijdrage')]/following-sibling::dd[1]/text()")
+        
+        new_item['service_kosten_text'] = self.extract_text(response, "//dt[contains(.,'Servicekosten')]/following-sibling::dd[1]/text()")
 
-        house_type_detail = self.extract_text(response, "//dt[contains(.,'Soort woonhuis')]/following-sibling::dd[1]/text()")
-        appartment_type_detail = self.extract_text(response, "//dt[contains(.,'Soort appartement')]/following-sibling::dd[1]/text()")
-        property_type_detail = ' '.join([house_type_detail, appartment_type_detail]).strip()
-        new_item['soort_woning'] = property_type_detail
+        new_item['soort_huis'] = self.extract_text(response, "//dt[contains(.,'Soort woonhuis')]/following-sibling::dd[1]/text()")
+        
+        new_item['soort_appartement'] = self.extract_text(response, "//dt[contains(.,'Soort appartement')]/following-sibling::dd[1]/text()")
 
         new_item['soort_bouw'] =  self.extract_text(response, "//dt[contains(.,'Soort bouw')]/following-sibling::dd[1]/text()")
 
@@ -65,8 +64,6 @@ class FundaSpider(CrawlSpider):
         new_item['inpandige_ruimte_text'] =  self.extract_text(response, "//dt[contains(.,'Overige inpandige ruimte')]/following-sibling::dd[1]/text()")
 
         new_item['buitenruimte_text'] =  self.extract_text(response, "//dt[contains(.,'Gebouwgebonden buitenruimte')]/following-sibling::dd[1]/text()")
-
-
 
         new_item['inhoud_text'] =  self.extract_text(response, "//dt[contains(.,'Inhoud')]/following-sibling::dd[1]/text()")
 

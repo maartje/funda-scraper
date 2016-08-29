@@ -7,10 +7,15 @@ class FundaItem(scrapy.Item):
     title = scrapy.Field()
     vraagprijs_text = scrapy.Field()
     periodieke_bijdrage_text = scrapy.Field()
+    vve_bijdrage_text = scrapy.Field()
+    service_kosten_text = scrapy.Field()
     bouwjaar_text = scrapy.Field()
     woonoppervlakte_text = scrapy.Field()
     kamers_text = scrapy.Field()
-    soort_woning = scrapy.Field()
+
+    soort_huis = scrapy.Field()
+    soort_appartement = scrapy.Field()
+
     soort_bouw = scrapy.Field()
     soort_dak = scrapy.Field()
     specifiek = scrapy.Field()
@@ -49,6 +54,7 @@ class FundaItem(scrapy.Item):
 
     # analyzed fields 
     woningtype = scrapy.Field()  # url
+    soort_woning = scrapy.Field()
 
     gemeente = scrapy.Field()    # title
     postcode = scrapy.Field()    # title

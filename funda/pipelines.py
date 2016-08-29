@@ -69,7 +69,10 @@ class PreprocessPipeline(object):
         # buitenruimte
         item['buitenruimte'] = try_extract_number(item, 'buitenruimte_text', r'[\d.]+')
 
-        item['periodieke_bijdrage'] = try_extract_number(item, 'periodieke_bijdrage_text', r'([\d.]+),?\d* per maand')
+        periodieke_bijdrage = try_extract_number(item, 'periodieke_bijdrage_text', r'([\d.]+),?\d* per maand')
+        vve_bijdrage = try_extract_number(item, 'vve_bijdrage_text', r'([\d.]+),?\d* per maand')
+        service_kosten = try_extract_number(item, 'service_kosten_text', r'([\d.]+),?\d* per maand')
+        item['periodieke_bijdrage'] = periodieke_bijdrage or vve_bijdrage or service_kosten
         
         # kamers
         item['kamers'] = try_extract_number(item, 'kamers_text', r'(\d+) kamer')
@@ -121,6 +124,7 @@ class PreprocessPipeline(object):
         item['achterom'] =  "achterom" in ligging_tuin_text
         
 
+        item['soort_woning'] = item.get('soort_huis') or item.get('soort_appartement')
         
         item['woonlagen'] = try_extract_number(item, 'woonlagen_text', r'(\d+) woonla')
         woonlagen_text = item.get('woonlagen_text', '').lower()
@@ -163,6 +167,14 @@ class PreprocessPipeline(object):
 class StoragePipeline(object):
     def process_item(self, item, spider):
         
+        # check required fields (used in partition and row key)
+        if not(item.get('gemeente')): #Todo: use postcode regio?
+            raise DropItem("Missing 'gemeente' in %s" % item.get('url', item))
+        if not(item.get('postcode')):
+            raise DropItem("Missing 'postcode' in %s" % item.get('url', item))
+        if not(item.get('huisnummer')):
+            raise DropItem("Missing 'huisnummer' in %s" % item.get('url', item))
+            
         house = {
             'PartitionKey': item['gemeente'],
             'RowKey': item['postcode'] + " " + item['huisnummer'],
@@ -171,10 +183,13 @@ class StoragePipeline(object):
             'title' :  dict(item).get('title', ''),
             'vraagprijs_text' : dict(item).get('vraagprijs_text', ''),
             'periodieke_bijdrage_text' : dict(item).get('periodieke_bijdrage_text', ''),
+            'vve_bijdrage_text' : dict(item).get('vve_bijdrage_text', ''),
+            'service_kosten_text' : dict(item).get('service_kosten_text', ''),
             'bouwjaar_text' : dict(item).get('bouwjaar_text', ''),
             'woonoppervlakte_text' :  dict(item).get('woonoppervlakte_text', ''),
             'kamers_text':  dict(item).get('kamers_text', ''),
-            'soort_woning' : dict(item).get('soort_woning', ''),
+            'soort_huis' : dict(item).get('soort_woning', ''),
+            'soort_appartement' : dict(item).get('soort_woning', ''),
             'soort_bouw' : dict(item).get('soort_bouw', ''),
             'soort_dak' : dict(item).get('soort_dak', ''),
             'specifiek' : dict(item).get('specifiek', ''),
@@ -213,6 +228,7 @@ class StoragePipeline(object):
             # derived values
 
             'woningtype' : dict(item).get('woningtype', ''),
+            'soort_woning' : dict(item).get('soort_woning', ''),
             'gemeente' : dict(item).get('gemeente', ''),
             'postcode' : dict(item).get('postcode', ''),
             'postcode_regio' : dict(item).get('postcode_regio', ''),

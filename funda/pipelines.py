@@ -8,147 +8,154 @@
 from azure.storage.table import TableService, Entity
 import datetime
 import re
+from scrapy.exceptions import DropItem
 
 table_service = TableService(account_name='mlhousing', account_key='RtqHj1/pRK+2WsMjZuql7TbyXOQwk4DRXJ/iLLrShwA8/9uTzxTuqomYaq4IW0szQ6JIdKVAANapJkOge/aGEQ==')
 
+
+def try_extract_number(item, item_key, regex = r'[\d.]+'):
+    text = try_extract(item, item_key, regex)
+    if not(text):
+        return None
+    return int(text.replace('.', ''))
+
+def try_extract(item, item_key, regex):
+    text  = item.get(item_key, '')
+    matches = re.findall(regex, text, re.IGNORECASE)
+    if not(matches):
+        return None
+    return matches[0]
+
 class PreprocessPipeline(object):
-    
+
+
+
     def process_item(self, item, spider):
+        if not(item.get('url')):
+            raise DropItem("Missing url in %s" % item)
+        
         # woningtype
-        if re.search(r'/appartement-',item['url']):
-            item['woningtype'] = "appartement"
-        elif re.search(r'/huis-',item['url']):
-            item['woningtype'] = "huis"
-            
+        item['woningtype'] = try_extract(item, 'url', r'/(appartement)-') or try_extract(item, 'url', r'/(huis)-')
+
         # address info
-        postcode = re.search(r'\d{4} [A-Z]{2}', item['title']).group(0)
-        item['postcode'] = postcode
-        item['postcode_regio'] = postcode[0:2]
-        item['postcode_wijk'] = postcode[0:4]
-        item['gemeente'] = re.search(r'\d{4} [A-Z]{2} \w+', item['title']).group(0).split()[2]
-        straat = re.findall(r'te koop: ([a-zA-Z\.-]*) ', item['title']) + re.findall(r'Verkocht: ([a-zA-Z\.-]*) ', item['title'])
-        item['straat'] = straat[0] if straat else (re.findall(r'te koop: ([a-zA-Z\.-]*)', item['title']) + re.findall(r'Verkocht: ([a-zA-Z\.-]*)', item['title']))[0]
-        item['huisnummer'] = re.findall(r'\d+', item['title'])[0]
+        item['postcode'] = try_extract(item, 'title', r'\d{4} [A-Z]{2}')
+        item['postcode_regio'] = try_extract(item, 'title', r'(\d{2})\d{2} [A-Z]{2}')
+        item['postcode_wijk'] = try_extract(item, 'title', r'(\d{4}) [A-Z]{2}')
+        item['gemeente'] = try_extract(item, 'title', r'\d{4} [A-Z]{2} (\w+)')
+        item['straat'] = try_extract(item, 'title', r'te koop: ([a-zA-Z\. -]*) \d+') or try_extract(item, 'title', r'Verkocht: ([a-zA-Z\.-]*) ')
+        item['huisnummer'] = try_extract(item, 'title', r'\d+')
         
         # vraagprijs
-        item['vraagprijs'] = int(re.findall(r'\d+', item['vraagprijs_text'].replace('.',''))[0].strip())
-        item['kosten_koper'] = not(re.findall(r' v\.o\.n', item['vraagprijs_text']))
-
-        # bouwjaar
-        item['bouwjaar'] = int(re.findall(r'\d+', item['bouwjaar_text'])[0]) if item['bouwjaar_text'] else None
+        item['vraagprijs'] = try_extract_number(item, 'vraagprijs_text', r'[\d.]+')
+        item['kosten_koper'] = not(try_extract(item, 'vraagprijs_text', r'v\.o\.n'))
 
         # woonoppervlakte
-        item['woonoppervlakte'] = int(re.findall(r'\d+', item['woonoppervlakte_text'].replace('.',''))[0]) if item['woonoppervlakte_text'] else None
+        item['woonoppervlakte'] = try_extract_number(item, 'woonoppervlakte_text', r'[\d.]+')
 
-        item['inhoud'] = int(re.findall(r'\d+', item['inhoud_text'].replace('.',''))[0]) if item['inhoud_text'] else None
+        # bouwjaar
+        item['bouwjaar'] =  try_extract_number(item, 'bouwjaar_text', r'\d+') 
+
+        # inhoud
+        item['inhoud'] = try_extract_number(item, 'inhoud_text', r'[\d.]+')
 
         # perceel_oppervlakte
-        item['perceel_oppervlakte'] = int(re.findall(r'\d+', item['perceel_oppervlakte_text'].replace('.',''))[0]) if item['perceel_oppervlakte_text'] else None
-        
-        # inpandige ruimte
-        item['inpandige_ruimte'] = int(re.findall(r'\d+', item['inpandige_ruimte_text'].replace('.',''))[0]) if item['inpandige_ruimte_text'] else None
+        item['perceel_oppervlakte'] = try_extract_number(item, 'perceel_oppervlakte_text', r'[\d.]+')
 
-        item['externe_bergruimte'] = int(re.findall(r'\d+', item['externe_bergruimte_text'].replace('.',''))[0]) if item['externe_bergruimte_text'] else None
+        # inpandige ruimte
+        item['inpandige_ruimte'] = try_extract_number(item, 'inpandige_ruimte_text', r'[\d.]+')
+
+        item['externe_bergruimte'] = try_extract_number(item, 'externe_bergruimte_text', r'[\d.]+')
 
         # buitenruimte
-        item['buitenruimte'] = int(re.findall(r'\d+', item['buitenruimte_text'].replace('.',''))[0]) if item['buitenruimte_text'] else None
+        item['buitenruimte'] = try_extract_number(item, 'buitenruimte_text', r'[\d.]+')
 
-        if item['periodieke_bijdrage_text'] and re.findall(r'\d+', item['periodieke_bijdrage_text']):
-            periodieke_bijdrage = re.findall(r'\d+ per maand', item['periodieke_bijdrage_text'].replace('.',''))[0]  
-            item['periodieke_bijdrage'] = int(periodieke_bijdrage.replace('per maand', '').strip())
-        else: 
-            item['periodieke_bijdrage'] = None
-
+        item['periodieke_bijdrage'] = try_extract_number(item, 'periodieke_bijdrage_text', r'([\d.]+),?\d* per maand')
+        
         # kamers
-        rooms = re.findall('\d+ kamer',item['kamers_text'])
-        item['kamers'] = int(rooms[0].replace(' kamer','')) if rooms else None
-        bedrooms = re.findall('\d+ slaapkamer',item['kamers_text'])
-        item['slaapkamers'] = int(bedrooms[0].replace(' slaapkamer','')) if bedrooms else None
+        item['kamers'] = try_extract_number(item, 'kamers_text', r'(\d+) kamer')
+        item['slaapkamers'] = try_extract_number(item, 'kamers_text', r'(\d+) slaapkamer')
 
         #badkamers en toiletten
-        badkamers = re.findall('\d+ badkamer', item['badkamers_text'])
-        item['badkamers'] = int(badkamers[0].replace(' badkamer','')) if badkamers else None
-        toiletten = re.findall('\d+ apart', item['badkamers_text'])
-        item['toiletten'] = int(toiletten[0].replace(' apart','')) if toiletten else None
+        item['badkamers'] = try_extract_number(item, 'badkamers_text', r'(\d+) badkamer')
+        item['toiletten'] = try_extract_number(item, 'badkamers_text', r'(\d+) apart')
 
         #balkon/dakterras    
-        item['frans_balkon'] = "frans balkon" in item['balkon_of_dakterras']
-        item['dakterras'] = "dakterras" in item['balkon_of_dakterras']
-        item['balkon'] = len(re.findall('balkon', item['balkon_of_dakterras'])) > len(re.findall('frans balkon', item['balkon_of_dakterras']))
+        balkon_of_dakterras = item.get('balkon_of_dakterras', '').lower()
+        item['frans_balkon'] = 'frans balkon' in balkon_of_dakterras
+        item['dakterras'] = 'dakterras' in balkon_of_dakterras
+        item['balkon'] = 'balkon' in balkon_of_dakterras.replace('frans balkon', '')
         
         # garage capaciteit
-        garage_capaciteit = re.findall('\d+ auto', item['garage_capaciteit_text'])
-        item['garage_capaciteit'] = int(garage_capaciteit[0].replace(' auto','')) if garage_capaciteit else None
+        item['garage_capaciteit'] = try_extract_number(item, 'garage_capaciteit_text', r'(\d+) auto')
 
-        # 1.088 m² (8m diep en 11m breed)
-        achtertuin = item['achtertuin_text'].replace('.','')
-        achtertuin_diepte = re.findall('\d+m diep', achtertuin)
-        item['achtertuin_diepte'] = int(achtertuin_diepte[0].replace('m diep', '')) if achtertuin_diepte else None
-        achtertuin_breedte = re.findall('\d+m breed', achtertuin)
-        item['achtertuin_breedte'] = int(achtertuin_breedte[0].replace('m breed', '')) if achtertuin_breedte else None
-        achtertuin_oppervlakte = re.findall('\d+ m', achtertuin)
-        item['achtertuin_oppervlakte'] = int(achtertuin_oppervlakte[0].replace(' m', '')) if achtertuin_oppervlakte else None
+        # achtertuin 1.088 m² (8m diep en 11m breed)
+        item['achtertuin_diepte'] = try_extract_number(item, 'achtertuin_text', r'(\d+)m diep')
+        item['achtertuin_breedte'] = try_extract_number(item, 'achtertuin_text', r'(\d+)m breed')
+        item['achtertuin_oppervlakte'] = try_extract_number(item, 'achtertuin_text', r'([\d.]+) m')
 
-        voortuin = item['voortuin_text'].replace('.','')
-        voortuin_diepte = re.findall('\d+m diep', voortuin)
-        item['voortuin_diepte'] = int(voortuin_diepte[0].replace('m diep', '')) if voortuin_diepte else None
-        voortuin_breedte = re.findall('\d+m breed', voortuin)
-        item['voortuin_breedte'] = int(voortuin_breedte[0].replace('m breed', '')) if voortuin_breedte else None
-        voortuin_oppervlakte = re.findall('\d+ m', voortuin)
-        item['voortuin_oppervlakte'] = int(voortuin_oppervlakte[0].replace(' m', '')) if voortuin_oppervlakte else None
+        # voortuin 1.088 m² (8m diep en 11m breed)
+        item['voortuin_diepte'] = try_extract_number(item, 'voortuin_text', r'(\d+)m diep')
+        item['voortuin_breedte'] = try_extract_number(item, 'voortuin_text', r'(\d+)m breed')
+        item['voortuin_oppervlakte'] = try_extract_number(item, 'voortuin_text', r'([\d.]+) m')
 
-        item['achtertuin'] = len(item['achtertuin_text'].strip()) > 0 or 'achtertuin' in item['tuin_text']
-        item['voortuin'] = len(item['voortuin_text'].strip()) > 0 or 'voortuin' in item['tuin_text']
-        item['zijtuin'] = 'zijtuin' in item['tuin_text']
-        item['tuin_rondom'] = 'rondom' in item['tuin_text']
-        item['patio'] = 'patio' in item['tuin_text']
-        item['zonneterras'] = 'zonneterras' in item['tuin_text']
+        # tuin_text
+        tuin_text = item.get('tuin_text', '').lower()
+        item['achtertuin'] = len(item.get('achtertuin_text', '').strip()) > 0 or 'achtertuin' in tuin_text
+        item['voortuin'] = len(item.get('voortuin_text', '').strip()) > 0 or 'voortuin' in tuin_text
+        item['zijtuin'] = 'zijtuin' in tuin_text
+        item['tuin_rondom'] = 'rondom' in tuin_text
+        item['patio'] = 'patio' in tuin_text
+        item['zonneterras'] = 'zonneterras' in tuin_text
 
-        if "noordwest" in item['ligging_tuin_text']: item['ligging_tuin'] = 'NW' 
-        elif "noordoost" in item['ligging_tuin_text']: item['ligging_tuin'] = 'NO' 
-        elif "zuidwest" in item['ligging_tuin_text']: item['ligging_tuin'] = 'ZW' 
-        elif "zuidoost" in item['ligging_tuin_text']: item['ligging_tuin'] = 'ZO' 
-        elif "noorden" in item['ligging_tuin_text']: item['ligging_tuin'] = 'N' 
-        elif "westen" in item['ligging_tuin_text']: item['ligging_tuin'] = 'W' 
-        elif "oosten" in item['ligging_tuin_text']: item['ligging_tuin'] = 'O' 
-        elif "zuiden" in item['ligging_tuin_text']: item['ligging_tuin'] = 'Z' 
-        else: item['ligging_tuin'] = ''
-
-        item['achterom'] =  "achterom" in item['ligging_tuin_text']
+        # ligging_tuin
+        ligging_tuin_text = item.get('ligging_tuin_text', '').lower()
+        if "zuidoost" in ligging_tuin_text: item['ligging_tuin'] = 'ZO' 
+        elif "zuidwest" in ligging_tuin_text: item['ligging_tuin'] = 'ZW' 
+        elif "noordoost" in ligging_tuin_text: item['ligging_tuin'] = 'NO' 
+        elif "noordwest" in ligging_tuin_text: item['ligging_tuin'] = 'NW' 
+        elif "noorden" in ligging_tuin_text: item['ligging_tuin'] = 'N' 
+        elif "westen" in ligging_tuin_text: item['ligging_tuin'] = 'W' 
+        elif "oosten" in ligging_tuin_text: item['ligging_tuin'] = 'O' 
+        elif "zuiden" in ligging_tuin_text: item['ligging_tuin'] = 'Z' 
+        
+        item['achterom'] =  "achterom" in ligging_tuin_text
         
 
         
-        woonlagen = re.findall('\d+ woonla',item['woonlagen_text'])
-        item['woonlagen'] = int(woonlagen[0].replace(' woonla','')) if woonlagen else None
-        item['kelder'] = "kelder" in item['woonlagen_text']
-        item['vliering'] = "vliering" in item['woonlagen_text']
-        item['zolder'] = "zolder" in item['woonlagen_text']
+        item['woonlagen'] = try_extract_number(item, 'woonlagen_text', r'(\d+) woonla')
+        woonlagen_text = item.get('woonlagen_text', '').lower()
+        item['kelder'] = "kelder" in woonlagen_text
+        item['vliering'] = "vliering" in woonlagen_text
+        item['zolder'] = "zolder" in woonlagen_text
     
-        if "begane grond" in item['gelegen_op_text']: 
-            item['verdieping'] = 0
-        else:
-            item['verdieping'] = int(re.findall(r'\d+', item['gelegen_op_text'])[0]) if item['gelegen_op_text'] else None
-            
+    
+        item['verdieping'] = 0 if "begane grond" in item.get('gelegen_op_text', '') else try_extract_number(item, 'gelegen_op_text', r'\d+')
+
         
-        eigendoms_info = (item["eigendomssituatie_text"] + item["lasten_text"]).replace('.', '')
-        if "erfpacht" in eigendoms_info:
+        eigendoms_info = (item.get("eigendomssituatie_text", '') + item.get("lasten_text", '')).lower()
+        volle_eigendom = "volle eigendom" in eigendoms_info
+        erfpacht = "erfpacht" in eigendoms_info
+        eind_datum_erfpacht = re.findall(r'\d{2}-\d{2}-\d{4}', eigendoms_info) if erfpacht else None
+        afgekocht = erfpacht and ("afgekocht" in eigendoms_info)
+
+        if erfpacht:
             item['eigendomssituatie'] = 'erfpacht'
-        elif "volle eigendom" in item["eigendomssituatie_text"]:
+        elif volle_eigendom:
             item['eigendomssituatie'] = 'volle eigendom'
         else:
-            item['eigendomssituatie'] = ''
+            item['eigendomssituatie'] = None
+            
+
+        item['eind_datum_erfpacht'] = datetime.datetime.strptime(eind_datum_erfpacht[0], "%d-%m-%Y") if eind_datum_erfpacht else None
         
-        eind_datum_erfpacht = re.findall(r'\d{2}-\d{2}-\d{4}', item["eigendomssituatie_text"] + item["lasten_text"])
-        item['eind_datum_erfpacht'] = int(eind_datum_erfpacht[0][-4:]) if eind_datum_erfpacht else None
-        
-        kosten_erfpacht = re.findall(r'(\d+,\d+|\d+) per jaar', eigendoms_info)
-        afgekocht = "afgekocht" in (eigendoms_info)
-        if afgekocht or item['eigendomssituatie'] == 'volle eigendom': 
-            item["kosten_erfpacht"] = 0.0 
-        elif kosten_erfpacht: 
-            item["kosten_erfpacht"] = float(kosten_erfpacht[0].replace(' per jaar', '').replace(',', '.'))  
+
+        kosten_erfpacht_match = re.findall(r'([\d.]+),?\d* per jaar', eigendoms_info) 
+        if afgekocht or volle_eigendom: 
+            item["kosten_erfpacht"] = 0
+        elif kosten_erfpacht_match: 
+            item["kosten_erfpacht"] = int(kosten_erfpacht_match[0].replace('.', ''))  
         elif 'einddatum' in eigendoms_info:
-            item["kosten_erfpacht"] = 0.0 
+            item["kosten_erfpacht"] = 0 
         else: 
             item["kosten_erfpacht"] = None
         return item

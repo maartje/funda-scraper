@@ -29,9 +29,8 @@ class FundaSoldSpider(CrawlSpider):
         
         new_item['title'] = response.xpath('//title/text()').extract()[0]
         
-        results = response.xpath("//span[contains(@class, 'price-wrapper' )]/span[contains(@class, 'price' )]/text()").extract()
-        new_item['vraagprijs_text'] = results[0] if results else None
-
+        new_item['vraagprijs_text'] = self.extract_text(response, "(//span[contains(@class, 'price-wrapper' )]/span[contains(@class, 'price' )])[1]/text()")
+        
         # posting_date = response.xpath("//span[contains(@class, 'transaction-date') and contains(.,'Aangeboden sinds')]/strong/text()").extract()[0]
         # new_item['posting_date'] = posting_date
         # sale_date = response.xpath("//span[contains(@class, 'transaction-date') and contains(.,'Verkoopdatum')]/strong/text()").extract()[0]
@@ -106,9 +105,11 @@ class FundaSoldSpider(CrawlSpider):
 
         new_item['cv_ketel'] = self.extract_feature(response, 'Cv-ketel') 
 
-        new_item['eigendomssituatie_text'] =  self.extract_feature(response, 'Eigendomssituatie')
+        # can occur two times on a page, we combine both occurences to a single string
+        new_item['eigendomssituatie_text'] =  self.extract_text(response, "//th[contains(.,'Eigendomssituatie')]/following-sibling::td[1]/span/text()")
 
-        new_item['lasten_text'] =  self.extract_feature(response, 'Lasten')
+        # can occur two times on a page, we combine both occurences to a single string
+        new_item['lasten_text'] =  self.extract_text(response, "//th[contains(.,'Lasten')]/following-sibling::td[1]/span/text()")
 
         new_item['ligging'] = self.extract_feature(response, 'Ligging')
 
@@ -133,7 +134,7 @@ class FundaSoldSpider(CrawlSpider):
         yield new_item
 
     def extract_feature(self, response, keyword):
-        return self.extract_text(response, "//th[contains(.,'" + keyword + "')]/following-sibling::td[1]/span/text()")
+        return self.extract_text(response, "(//th[contains(.,'" + keyword + "')]/following-sibling::td[1]/span)[1]/text()")
 
     def extract_text(self, response, xpath):
         results = response.xpath(xpath).extract()

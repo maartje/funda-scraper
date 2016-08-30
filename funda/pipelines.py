@@ -45,6 +45,8 @@ class PreprocessPipeline(object):
         item['straat'] = try_extract(item, 'title', r'te koop: ([a-zA-Z\. -]*) \d+') or try_extract(item, 'title', r'Verkocht: ([a-zA-Z\.-]*) ')
         item['huisnummer'] = try_extract(item, 'title', r'\d+')
         
+        item['energielabel'] = try_extract(item, 'energielabel_text', r'[a-zA-Z]') 
+
         # vraagprijs
         item['vraagprijs'] = try_extract_number(item, 'vraagprijs_text', r'[\d.]+')
         item['kosten_koper'] = not(try_extract(item, 'vraagprijs_text', r'v\.o\.n'))
@@ -105,10 +107,11 @@ class PreprocessPipeline(object):
         tuin_text = item.get('tuin_text', '').lower()
         item['achtertuin'] = len(item.get('achtertuin_text', '').strip()) > 0 or 'achtertuin' in tuin_text
         item['voortuin'] = len(item.get('voortuin_text', '').strip()) > 0 or 'voortuin' in tuin_text
-        item['zijtuin'] = 'zijtuin' in tuin_text
-        item['tuin_rondom'] = 'rondom' in tuin_text
         item['patio'] = 'patio' in tuin_text
         item['zonneterras'] = 'zonneterras' in tuin_text
+        item['zijtuin'] = 'zijtuin' in tuin_text
+        item['tuin_rondom'] = 'rondom' in tuin_text
+        item['plaats'] = 'plaats' in tuin_text
 
         # ligging_tuin
         ligging_tuin_text = item.get('ligging_tuin_text', '').lower()
@@ -162,6 +165,7 @@ class PreprocessPipeline(object):
             item["kosten_erfpacht"] = 0 
         else: 
             item["kosten_erfpacht"] = None
+        
         return item
 
 class StoragePipeline(object):
@@ -188,8 +192,8 @@ class StoragePipeline(object):
             'bouwjaar_text' : dict(item).get('bouwjaar_text', ''),
             'woonoppervlakte_text' :  dict(item).get('woonoppervlakte_text', ''),
             'kamers_text':  dict(item).get('kamers_text', ''),
-            'soort_huis' : dict(item).get('soort_woning', ''),
-            'soort_appartement' : dict(item).get('soort_woning', ''),
+            'soort_huis' : dict(item).get('soort_huis', ''),
+            'soort_appartement' : dict(item).get('soort_appartement', ''),
             'soort_bouw' : dict(item).get('soort_bouw', ''),
             'soort_dak' : dict(item).get('soort_dak', ''),
             'specifiek' : dict(item).get('specifiek', ''),
@@ -271,6 +275,7 @@ class StoragePipeline(object):
             'tuin_rondom' : dict(item).get('tuin_rondom', ''),
             'patio' : dict(item).get('patio', ''),
             'zonneterras' : dict(item).get('zonneterras', ''),
+            'plaats' : dict(item).get('plaats', ''),
             'woonlagen' : dict(item).get('woonlagen', ''),
             'kelder' : dict(item).get('kelder', ''),
             'vliering' : dict(item).get('vliering', ''),
@@ -284,9 +289,9 @@ class StoragePipeline(object):
             'eind_datum_erfpacht' : dict(item).get('eind_datum_erfpacht', ''),
             'kosten_erfpacht' : dict(item).get('kosten_erfpacht', ''),
 
+            'energielabel' : dict(item).get('energielabel', ''),
         }
-        # table_service.insert_or_replace_entity('HousesForSale', house)        
-        table_service.insert_or_replace_entity('HouseData', house)        
+        table_service.insert_or_replace_entity('HousesForSale', house)        
+        #table_service.insert_or_replace_entity('HousesSold', house)        
         return item
-
 

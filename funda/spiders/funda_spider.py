@@ -13,10 +13,6 @@ class FundaSpider(CrawlSpider):
         self.base_url = "http://www.funda.nl/koop/%s/" % place
         self.le1 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}' % self.base_url)
 
-    def extract_text(self, response, xpath):
-        results = response.xpath(xpath).extract()
-        return results[0].strip().lower() if results else ''
-
     def parse(self, response):
         links = self.le1.extract_links(response)
         for link in links:
@@ -31,90 +27,98 @@ class FundaSpider(CrawlSpider):
 
         new_item['title'] = response.xpath('//title/text()').extract()[0]
 
-        new_item['vraagprijs_text'] = self.extract_text(response, "//dt[contains(.,'Vraagprijs')]/following-sibling::dd[1]/text()")
+        new_item['vraagprijs_text'] = self.extract_feature(response, 'Vraagprijs')
 
-        new_item['bouwjaar_text'] = self.extract_text(response, "//dt[contains(.,'Bouwjaar')]/following-sibling::dd[1]/text()")
+        new_item['bouwjaar_text'] = self.extract_feature(response, 'Bouwjaar')
 
-        new_item['woonoppervlakte_text'] = self.extract_text(response, "//dt[contains(.,'Woonoppervlakte')]/following-sibling::dd[1]/text()")
+        new_item['woonoppervlakte_text'] = self.extract_feature(response, 'Woonoppervlakte')
 
-        new_item['kamers_text'] = self.extract_text(response, "//dt[contains(.,'Aantal kamers')]/following-sibling::dd[1]/text()")
+        new_item['kamers_text'] = self.extract_feature(response, 'Aantal kamers')
 
-        new_item['status'] =  self.extract_text(response, "//dt[contains(.,'Status')]/following-sibling::dd[1]/text()")
+        new_item['status'] =  self.extract_feature(response, 'Status')
 
-        new_item['aanvaarding'] =  self.extract_text(response, "//dt[contains(.,'Aanvaarding')]/following-sibling::dd[1]/text()")
-        
-        new_item['vve_bijdrage_text'] = self.extract_text(response, "//dt[contains(.,'Bijdrage VvE')]/following-sibling::dd[1]/text()")
-        
-        new_item['periodieke_bijdrage_text'] = self.extract_text(response, "//dt[contains(.,'Periodieke bijdrage')]/following-sibling::dd[1]/text()")
-        
-        new_item['service_kosten_text'] = self.extract_text(response, "//dt[contains(.,'Servicekosten')]/following-sibling::dd[1]/text()")
+        new_item['aanvaarding'] = self.extract_feature(response, 'Aanvaarding') 
 
-        new_item['soort_huis'] = self.extract_text(response, "//dt[contains(.,'Soort woonhuis')]/following-sibling::dd[1]/text()")
-        
-        new_item['soort_appartement'] = self.extract_text(response, "//dt[contains(.,'Soort appartement')]/following-sibling::dd[1]/text()")
+        new_item['vve_bijdrage_text'] = self.extract_feature(response, 'Bijdrage VvE')
 
-        new_item['soort_bouw'] =  self.extract_text(response, "//dt[contains(.,'Soort bouw')]/following-sibling::dd[1]/text()")
+        new_item['periodieke_bijdrage_text'] = self.extract_feature(response, 'Periodieke bijdrage')
 
-        new_item['soort_dak'] =  self.extract_text(response, "//dt[contains(.,'Soort dak')]/following-sibling::dd[1]/text()")
+        new_item['service_kosten_text'] = self.extract_feature(response, 'Servicekosten')
 
-        new_item['specifiek'] =  self.extract_text(response, "//dt[contains(.,'Specifiek')]/following-sibling::dd[1]/text()")
+        new_item['soort_huis'] = self.extract_feature(response, 'Soort woonhuis')
 
-        new_item['perceel_oppervlakte_text'] =  self.extract_text(response, "//dt[contains(.,'Perceeloppervlakte')]/following-sibling::dd[1]/text()")
+        new_item['soort_appartement'] = self.extract_feature(response, 'Soort appartement')
 
-        new_item['inpandige_ruimte_text'] =  self.extract_text(response, "//dt[contains(.,'Overige inpandige ruimte')]/following-sibling::dd[1]/text()")
+        new_item['soort_bouw'] =  self.extract_feature(response, 'Soort bouw')
 
-        new_item['buitenruimte_text'] =  self.extract_text(response, "//dt[contains(.,'Gebouwgebonden buitenruimte')]/following-sibling::dd[1]/text()")
+        new_item['soort_dak'] = self.extract_feature(response, 'Soort dak')
 
-        new_item['inhoud_text'] =  self.extract_text(response, "//dt[contains(.,'Inhoud')]/following-sibling::dd[1]/text()")
+        new_item['specifiek'] = self.extract_feature(response, 'Specifiek') 
 
-        new_item['woonlagen_text'] =  self.extract_text(response, "//dt[contains(.,'Aantal woonlagen')]/following-sibling::dd[1]/text()")
+        new_item['perceel_oppervlakte_text'] = self.extract_feature(response, 'Perceeloppervlakte')
 
-        new_item['badkamers_text'] =  self.extract_text(response, "//dt[contains(.,'Aantal badkamers')]/following-sibling::dd[1]/text()")
+        new_item['inpandige_ruimte_text'] = self.extract_feature(response, 'inpandige ruimte')
 
-        new_item['gelegen_op_text'] =  self.extract_text(response, "//dt[contains(.,'Gelegen op')]/following-sibling::dd[1]/text()")
+        new_item['buitenruimte_text'] = self.extract_feature(response, 'Gebouwgebonden buitenruimte')
 
-        new_item['badkamervoorzieningen'] =  self.extract_text(response, "//dt[contains(.,'Badkamervoorzieningen')]/following-sibling::dd[1]/text()")
+        new_item['inhoud_text'] = self.extract_feature(response, 'Inhoud')
 
-        new_item['externe_bergruimte_text'] =  self.extract_text(response, "//dt[contains(.,'Externe bergruimte')]/following-sibling::dd[1]/text()")
+        new_item['woonlagen_text'] = self.extract_feature(response, 'Aantal woonlagen')
 
-        new_item['voorzieningen'] =  self.extract_text(response, "//dt[contains(.,'Voorzieningen')]/following-sibling::dd[1]/text()")
+        new_item['badkamers_text'] = self.extract_feature(response, 'Aantal badkamers')
 
-        new_item['energielabel_text'] =  self.extract_text(response, "//span[contains(@class, 'energielabel')]/text()")
+        new_item['gelegen_op_text'] = self.extract_feature(response, 'Gelegen op')
 
-        new_item['isolatie'] =  self.extract_text(response, "//dt[contains(.,'Isolatie')]/following-sibling::dd[1]/text()")
-        
-        new_item['verwarming'] =  self.extract_text(response, "//dt[contains(.,'Verwarming')]/following-sibling::dd[1]/text()")
+        new_item['badkamervoorzieningen'] = self.extract_feature(response, 'Badkamervoorzieningen')
 
-        new_item['warm_water'] =  self.extract_text(response, "//dt[contains(.,'Warm water')]/following-sibling::dd[1]/text()")
+        new_item['externe_bergruimte_text'] = self.extract_feature(response, 'Externe bergruimte')
 
-        new_item['cv_ketel'] =  self.extract_text(response, "//dt[contains(.,'Cv-ketel')]/following-sibling::dd[1]/text()")
+        new_item['voorzieningen'] = self.extract_feature(response, 'Voorzieningen')
 
-        new_item['eigendomssituatie_text'] =  self.extract_text(response, "//dt[contains(.,'Eigendomssituatie')]/following-sibling::dd[1]/text()")
+        new_item['energielabel_text'] = self.extract_text(response, "//span[contains(@class, 'energielabel')]/text()")
 
-        new_item['lasten_text'] =  self.extract_text(response, "//dt[contains(.,'Lasten')]/following-sibling::dd[1]/text()")
+        new_item['isolatie'] = self.extract_feature(response, 'Isolatie')
 
-        new_item['ligging'] =  self.extract_text(response, "//dt[contains(.,'Ligging')]/following-sibling::dd[1]/text()")
+        new_item['verwarming'] = self.extract_feature(response, 'Verwarming')
 
-        new_item['tuin_text'] =  self.extract_text(response, "//dt[contains(.,'Tuin')]/following-sibling::dd[1]/text()")
+        new_item['warm_water'] = self.extract_feature(response, 'Warm water')
 
-        new_item['achtertuin_text'] =  self.extract_text(response, "//dt[contains(.,'Achtertuin')]/following-sibling::dd[1]/text()")
+        new_item['cv_ketel'] = self.extract_feature(response, 'Cv-ketel')
 
-        new_item['voortuin_text'] =  self.extract_text(response, "//dt[contains(.,'Voortuin')]/following-sibling::dd[1]/text()")
+        # can occur two times on a page, we combine both occurences to a single string
+        new_item['eigendomssituatie_text'] = self.extract_text(response, "//dt[contains(.,'Eigendomssituatie')]/following-sibling::dd[1]/text()")
 
-        new_item['ligging_tuin_text'] =  self.extract_text(response, "//dt[contains(.,'Ligging tuin')]/following-sibling::dd[1]/text()")
+        # can occur two times on a page, we combine both occurences to a single string
+        new_item['lasten_text'] = self.extract_text(response, "//dt[contains(.,'Lasten')]/following-sibling::dd[1]/text()")
 
-        new_item['balkon_of_dakterras'] =  self.extract_text(response, "//dt[contains(.,'Balkon/dakterras')]/following-sibling::dd[1]/text()")
+        new_item['ligging'] = self.extract_feature(response, 'Ligging')
 
-        new_item['schuur_of_berging'] =  self.extract_text(response, "//dt[contains(.,'Schuur/berging')]/following-sibling::dd[1]/text()")
+        new_item['tuin_text'] = self.extract_feature(response, 'Tuin')
 
-        new_item['garage'] =  self.extract_text(response, "//dt[contains(.,'Soort garage')]/following-sibling::dd[1]/text()")
+        new_item['achtertuin_text'] = self.extract_feature(response, 'Achtertuin')
 
-        new_item['garage_capaciteit_text'] =  self.extract_text(response, "//dt[contains(.,'Capaciteit')]/following-sibling::dd[1]/text()")
+        new_item['voortuin_text'] = self.extract_feature(response, 'Voortuin')
 
-        new_item['parkeergelegenheid'] =  self.extract_text(response, "//dt[contains(.,'Soort parkeergelegenheid')]/following-sibling::dd[1]/text()")
+        new_item['ligging_tuin_text'] = self.extract_feature(response, 'Ligging tuin')
+
+        new_item['balkon_of_dakterras'] = self.extract_feature(response, 'Balkon/dakterras')
+
+        new_item['schuur_of_berging'] = self.extract_feature(response, 'Schuur/berging')
+
+        new_item['garage'] = self.extract_feature(response, 'Soort garage')
+
+        new_item['garage_capaciteit_text'] = self.extract_feature(response, 'Capaciteit')
+
+        new_item['parkeergelegenheid'] = self.extract_feature(response, 'Soort parkeergelegenheid')
 
         yield new_item
         
+    def extract_feature(self, response, keyword):
+        return self.extract_text(response, "(//dt[contains(.,'" + keyword + "')]/following-sibling::dd[1])[1]/text()")
+
+    def extract_text(self, response, xpath):
+        results = response.xpath(xpath).extract()
+        return ' '.join(results).strip().lower()
 
 
 # Omschrijving

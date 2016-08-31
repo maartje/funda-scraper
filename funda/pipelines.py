@@ -19,6 +19,12 @@ def try_extract_number(item, item_key, regex = r'[\d.]+'):
         return None
     return int(text.replace('.', ''))
 
+def try_extract_date(item, item_key, regex = r'\d\d?-\d\d?-\d{4}'):
+    text = try_extract(item, item_key, regex)
+    if not(text):
+        return None
+    return datetime.datetime.strptime(text, "%d-%m-%Y")
+
 def try_extract(item, item_key, regex):
     text  = item.get(item_key, '')
     matches = re.findall(regex, text, re.IGNORECASE)
@@ -54,8 +60,16 @@ class PreprocessPipeline(object):
         # woonoppervlakte
         item['woonoppervlakte'] = try_extract_number(item, 'woonoppervlakte_text', r'[\d.]+')
 
+        item['aangeboden_sinds'] =  try_extract_date(item, 'aangeboden_sinds_text') 
+
+        item['verkoopdatum'] =  try_extract_date(item, 'verkoopdatum_text') 
+
         # bouwjaar
-        item['bouwjaar'] =  try_extract_number(item, 'bouwjaar_text', r'\d+') 
+        item['bouwjaar'] =  try_extract_number(item, 'bouwjaar_text', r'\d{4}') 
+
+        # bouwperiode
+        item['bouwperiode_start'] = try_extract_number(item, 'bouwperiode_text', r'(\d{4})-\d{4}') or item.get('bouwjaar') 
+        item['bouwperiode_end'] = try_extract_number(item, 'bouwperiode_text', r'\d{4}-(\d{4})') or item.get('bouwjaar')
 
         # inhoud
         item['inhoud'] = try_extract_number(item, 'inhoud_text', r'[\d.]+')
@@ -98,18 +112,33 @@ class PreprocessPipeline(object):
         item['achtertuin_breedte'] = try_extract_number(item, 'achtertuin_text', r'(\d+)m breed')
         item['achtertuin_oppervlakte'] = try_extract_number(item, 'achtertuin_text', r'([\d.]+) m')
 
-        # voortuin 1.088 m² (8m diep en 11m breed)
+        # voortuin
         item['voortuin_diepte'] = try_extract_number(item, 'voortuin_text', r'(\d+)m diep')
         item['voortuin_breedte'] = try_extract_number(item, 'voortuin_text', r'(\d+)m breed')
         item['voortuin_oppervlakte'] = try_extract_number(item, 'voortuin_text', r'([\d.]+) m')
+
+        # zijtuin
+        item['zijtuin_diepte'] = try_extract_number(item, 'zijtuin_text', r'(\d+)m diep')
+        item['zijtuin_breedte'] = try_extract_number(item, 'zijtuin_text', r'(\d+)m breed')
+        item['zijtuin_oppervlakte'] = try_extract_number(item, 'zijtuin_text', r'([\d.]+) m')
+
+        # zonneterras
+        item['zonneterras_diepte'] = try_extract_number(item, 'zonneterras_text', r'(\d+)m diep')
+        item['zonneterras_breedte'] = try_extract_number(item, 'zonneterras_text', r'(\d+)m breed')
+        item['zonneterras_oppervlakte'] = try_extract_number(item, 'zonneterras_text', r'([\d.]+) m')
+
+        # patio
+        item['patio_diepte'] = try_extract_number(item, 'patio_text', r'(\d+)m diep')
+        item['patio_breedte'] = try_extract_number(item, 'patio_text', r'(\d+)m breed')
+        item['patio_oppervlakte'] = try_extract_number(item, 'patio_text', r'([\d.]+) m')
 
         # tuin_text
         tuin_text = item.get('tuin_text', '').lower()
         item['achtertuin'] = len(item.get('achtertuin_text', '').strip()) > 0 or 'achtertuin' in tuin_text
         item['voortuin'] = len(item.get('voortuin_text', '').strip()) > 0 or 'voortuin' in tuin_text
-        item['patio'] = 'patio' in tuin_text
-        item['zonneterras'] = 'zonneterras' in tuin_text
-        item['zijtuin'] = 'zijtuin' in tuin_text
+        item['patio'] = len(item.get('patio_text', '').strip()) > 0 or 'patio' in tuin_text
+        item['zonneterras'] = len(item.get('zonneterras_text', '').strip()) > 0 or 'zonneterras' in tuin_text
+        item['zijtuin'] = len(item.get('zijtuin_text', '').strip()) > 0 or 'zijtuin' in tuin_text
         item['tuin_rondom'] = 'rondom' in tuin_text
         item['plaats'] = 'plaats' in tuin_text
 
@@ -142,7 +171,6 @@ class PreprocessPipeline(object):
         eigendoms_info = (item.get("eigendomssituatie_text", '') + item.get("lasten_text", '')).lower()
         volle_eigendom = "volle eigendom" in eigendoms_info
         erfpacht = "erfpacht" in eigendoms_info
-        eind_datum_erfpacht = re.findall(r'\d{2}-\d{2}-\d{4}', eigendoms_info) if erfpacht else None
         afgekocht = erfpacht and ("afgekocht" in eigendoms_info)
 
         if erfpacht:
@@ -153,8 +181,7 @@ class PreprocessPipeline(object):
             item['eigendomssituatie'] = None
             
 
-        item['eind_datum_erfpacht'] = datetime.datetime.strptime(eind_datum_erfpacht[0], "%d-%m-%Y") if eind_datum_erfpacht else None
-        
+        item['eind_datum_erfpacht'] = try_extract_date(item, "eigendomssituatie_text") or try_extract_date(item, "lasten_text")
 
         kosten_erfpacht_match = re.findall(r'([\d.]+),?\d* per jaar', eigendoms_info) 
         if afgekocht or volle_eigendom: 
@@ -190,8 +217,15 @@ class StoragePipeline(object):
             'vve_bijdrage_text' : dict(item).get('vve_bijdrage_text', ''),
             'service_kosten_text' : dict(item).get('service_kosten_text', ''),
             'bouwjaar_text' : dict(item).get('bouwjaar_text', ''),
+            'bouwperiode_text' : dict(item).get('bouwperiode_text', ''),
             'woonoppervlakte_text' :  dict(item).get('woonoppervlakte_text', ''),
             'kamers_text':  dict(item).get('kamers_text', ''),
+            'aangeboden_sinds_text':  dict(item).get('aangeboden_sinds_text', ''),
+            'verkoopdatum_text':  dict(item).get('verkoopdatum_text', ''),
+            'looptijd_text':  dict(item).get('looptijd_text', ''),
+            'toegankelijkheid_text':  dict(item).get('toegankelijkheid_text', ''),
+            'keurmerken_text':  dict(item).get('keurmerken_text', ''),
+            
             'soort_huis' : dict(item).get('soort_huis', ''),
             'soort_appartement' : dict(item).get('soort_appartement', ''),
             'soort_bouw' : dict(item).get('soort_bouw', ''),
@@ -221,6 +255,9 @@ class StoragePipeline(object):
             'tuin_text' : dict(item).get('tuin_text', ''),
             'achtertuin_text' : dict(item).get('achtertuin_text', ''),
             'voortuin_text' : dict(item).get('voortuin_text', ''),
+            'zijtuin_text' : dict(item).get('zijtuin_text', ''),
+            'patio_text' : dict(item).get('patio_text', ''),
+            'zonneterras_text' : dict(item).get('zonneterras_text', ''),
             'ligging_tuin_text' : dict(item).get('ligging_tuin_text', ''),
             'balkon_of_dakterras' : dict(item).get('balkon_of_dakterras', ''),
             'schuur_of_berging' : dict(item).get('schuur_of_berging', ''),
@@ -243,7 +280,13 @@ class StoragePipeline(object):
             'vraagprijs' : dict(item).get('vraagprijs', ''),
             'kosten_koper' : dict(item).get('kosten_koper', ''),
 
+            'aangeboden_sinds' : dict(item).get('aangeboden_sinds', ''),
+            'verkoopdatum' : dict(item).get('verkoopdatum', ''),
+
             'bouwjaar' : dict(item).get('bouwjaar', ''),
+            'bouwperiode_start' : dict(item).get('bouwperiode_start', ''),
+            'bouwperiode_end' : dict(item).get('bouwperiode_end', ''),
+            
             
             'woonoppervlakte' :  dict(item).get('woonoppervlakte', ''),
             'perceel_oppervlakte' : dict(item).get('perceel_oppervlakte', ''),
@@ -261,12 +304,28 @@ class StoragePipeline(object):
             'frans_balkon' : dict(item).get('frans_balkon', ''),
             'dakterras' : dict(item).get('dakterras', ''),
             'balkon' : dict(item).get('balkon', ''),
+            
             'voortuin_diepte' : dict(item).get('voortuin_diepte', ''),
             'voortuin_breedte' : dict(item).get('voortuin_breedte', ''),
             'voortuin_oppervlakte' : dict(item).get('voortuin_oppervlakte', ''),
+            
             'achtertuin_diepte' : dict(item).get('achtertuin_diepte', ''),
             'achtertuin_breedte' : dict(item).get('achtertuin_breedte', ''),
             'achtertuin_oppervlakte' : dict(item).get('achtertuin_oppervlakte', ''),
+
+            'patio_diepte' : dict(item).get('patio_diepte', ''),
+            'patio_breedte' : dict(item).get('patio_breedte', ''),
+            'patio_oppervlakte' : dict(item).get('patio_oppervlakte', ''),
+
+            'zijtuin_diepte' : dict(item).get('zijtuin_diepte', ''),
+            'zijtuin_breedte' : dict(item).get('zijtuin_breedte', ''),
+            'zijtuin_oppervlakte' : dict(item).get('zijtuin_oppervlakte', ''),
+
+            'zonneterras_diepte' : dict(item).get('zonneterras_diepte', ''),
+            'zonneterras_breedte' : dict(item).get('zonneterras_breedte', ''),
+            'zonneterras_oppervlakte' : dict(item).get('zonneterras_oppervlakte', ''),
+
+
             'ligging_tuin' : dict(item).get('ligging_tuin', ''),
             'achterom' : dict(item).get('achterom', ''),
             'achtertuin' : dict(item).get('achtertuin', ''),
@@ -291,7 +350,7 @@ class StoragePipeline(object):
 
             'energielabel' : dict(item).get('energielabel', ''),
         }
-        table_service.insert_or_replace_entity('HousesForSale', house)        
-        #table_service.insert_or_replace_entity('HousesSold', house)        
+        # table_service.insert_or_replace_entity('HousesForSale', house)        
+        # table_service.insert_or_replace_entity('HousesSold', house)        
         return item
 

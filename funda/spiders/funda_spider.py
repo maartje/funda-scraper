@@ -28,8 +28,20 @@ class FundaSpider(CrawlSpider):
         new_item['title'] = response.xpath('//title/text()').extract()[0]
 
         new_item['vraagprijs_text'] = self.extract_feature(response, 'Vraagprijs')
+        
+        new_item['aangeboden_sinds_text'] = self.extract_feature(response, 'Aangeboden sinds')
+
+        new_item['verkoopdatum_text'] = self.extract_feature(response, 'Verkoopdatum')
+
+        new_item['looptijd_text'] = self.extract_feature(response, 'Looptijd')
+
+        new_item['toegankelijkheid_text'] = self.extract_feature(response, 'Toegankelijkheid')
+
+        new_item['keurmerken_text'] = self.extract_feature(response, 'Keurmerken')
 
         new_item['bouwjaar_text'] = self.extract_feature(response, 'Bouwjaar')
+
+        new_item['bouwperiode_text'] = self.extract_feature(response, 'Bouwperiode')
 
         new_item['woonoppervlakte_text'] = self.extract_feature(response, 'Woonoppervlakte')
 
@@ -98,6 +110,13 @@ class FundaSpider(CrawlSpider):
         new_item['achtertuin_text'] = self.extract_feature(response, 'Achtertuin')
 
         new_item['voortuin_text'] = self.extract_feature(response, 'Voortuin')
+
+        new_item['patio_text'] = self.extract_feature(response, 'Patio')
+
+        new_item['zijtuin_text'] = self.extract_feature(response, 'Zijtuin')
+
+        new_item['zonneterras_text'] = self.extract_feature(response, 'Zonneterras')
+
 
         new_item['ligging_tuin_text'] = self.extract_feature(response, 'Ligging tuin')
 

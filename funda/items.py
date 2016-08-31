@@ -10,8 +10,16 @@ class FundaItem(scrapy.Item):
     vve_bijdrage_text = scrapy.Field()
     service_kosten_text = scrapy.Field()
     bouwjaar_text = scrapy.Field()
+    bouwperiode_text = scrapy.Field()
     woonoppervlakte_text = scrapy.Field()
     kamers_text = scrapy.Field()
+
+    aangeboden_sinds_text = scrapy.Field()
+    verkoopdatum_text = scrapy.Field()
+    looptijd_text = scrapy.Field()
+
+    toegankelijkheid_text = scrapy.Field()
+    keurmerken_text = scrapy.Field() 
 
     soort_huis = scrapy.Field()
     soort_appartement = scrapy.Field()
@@ -44,6 +52,10 @@ class FundaItem(scrapy.Item):
     tuin_text = scrapy.Field()
     achtertuin_text = scrapy.Field()
     voortuin_text = scrapy.Field()
+    patio_text = scrapy.Field()
+    zijtuin_text = scrapy.Field()
+    zonneterras_text = scrapy.Field()
+
     ligging_tuin_text = scrapy.Field()
     balkon_of_dakterras = scrapy.Field()
     schuur_of_berging = scrapy.Field()
@@ -66,7 +78,12 @@ class FundaItem(scrapy.Item):
     vraagprijs = scrapy.Field()  
     kosten_koper = scrapy.Field()
 
+    aangeboden_sinds = scrapy.Field()
+    verkoopdatum = scrapy.Field()
+
     bouwjaar = scrapy.Field()    
+    bouwperiode_start = scrapy.Field()
+    bouwperiode_end = scrapy.Field()
     
     woonoppervlakte = scrapy.Field() 
     
@@ -96,6 +113,18 @@ class FundaItem(scrapy.Item):
     achtertuin_breedte = scrapy.Field()
     achtertuin_oppervlakte = scrapy.Field()
 
+    patio_diepte = scrapy.Field()
+    patio_breedte = scrapy.Field()
+    patio_oppervlakte = scrapy.Field()
+
+    zijtuin_diepte = scrapy.Field()
+    zijtuin_breedte = scrapy.Field()
+    zijtuin_oppervlakte = scrapy.Field()
+
+    zonneterras_diepte = scrapy.Field()
+    zonneterras_breedte = scrapy.Field()
+    zonneterras_oppervlakte = scrapy.Field()
+
     ligging_tuin = scrapy.Field()
     achterom = scrapy.Field()
     
@@ -105,6 +134,7 @@ class FundaItem(scrapy.Item):
     tuin_rondom = scrapy.Field()
     patio = scrapy.Field()
     zonneterras = scrapy.Field()
+    plaats = scrapy.Field()
 
 
     woonlagen = scrapy.Field()
@@ -124,3 +154,10 @@ class FundaItem(scrapy.Item):
     eind_datum_erfpacht = scrapy.Field()
     kosten_erfpacht = scrapy.Field()
 
+    energielabel = scrapy.Field()
+    
+    
+    # omschrijving
+    # image url
+    
+    

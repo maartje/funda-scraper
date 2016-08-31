@@ -31,11 +31,6 @@ class FundaSoldSpider(CrawlSpider):
         
         new_item['vraagprijs_text'] = self.extract_text(response, "(//span[contains(@class, 'price-wrapper' )]/span[contains(@class, 'price' )])[1]/text()")
         
-        # posting_date = response.xpath("//span[contains(@class, 'transaction-date') and contains(.,'Aangeboden sinds')]/strong/text()").extract()[0]
-        # new_item['posting_date'] = posting_date
-        # sale_date = response.xpath("//span[contains(@class, 'transaction-date') and contains(.,'Verkoopdatum')]/strong/text()").extract()[0]
-        # new_item['sale_date'] = sale_date
-
         links = self.le2.extract_links(response)
         slash_count = self.base_url.count('/') + 2
         proper_links = filter(lambda link: link.url.count('/')==slash_count and link.url.endswith('/'), links)

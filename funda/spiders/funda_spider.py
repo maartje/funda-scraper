@@ -8,6 +8,7 @@ class FundaSpider(CrawlSpider):
     name = "funda_spider"
     allowed_domains = ["funda.nl"]
 
+
     def __init__(self, place='amsterdam'):
         self.start_urls = ["http://www.funda.nl/koop/%s/p%s/" % (place, page_number) for page_number in range(1,10)]
         self.base_url = "http://www.funda.nl/koop/%s/" % place

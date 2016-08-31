@@ -1,12 +1,30 @@
-RowKey: format
-Balkon_of_dakterras: balkon/dakterras/frans balkon
-perceel_oppervlakte: 1.201 => 1 (point is incorrectly processed)
-periodieke bijdrage: check 'per maand'
-badkamers_text: extract nr of bathrooms, toilets
-garage: extract possible values
-parkeergelegenheid: extract possible values
-garage_capaciteit: check for 'auto', extract number
+   # RowKey: format
+   # Balkon_of_dakterras: balkon/dakterras/frans balkon
+   # perceel_oppervlakte: 1.201 => 1 (point is incorrectly processed)
+   #periodieke bijdrage: check 'per maand'
+   #badkamers_text: extract nr of bathrooms, toilets
+   #garage_capaciteit: check for 'auto', extract number
+   #achtertuin, voortuin: oppervlakte, diepte, breedte
+   # woonlagen: extract number
+   # vraagprijs: > miljoen verkeerd resultaat
+
+-- garage: extract possible values
+-- parkeergelegenheid: extract possible values
+
+   #ligging tuin: windrichting, achterom?
+
+   #tuin: find categories
+
+   #energie label: komt niet door, categories
+
+
+--------------------------------------------------------
+
+postcode: regio, wijk, buurt
+//De eerste 2 cijfers geven de regio aan, 
+de laatste 2 cijfers de wijk. 
+De twee letters geven de buurt en straat aan.
+
+
 
 ... and more
-
-

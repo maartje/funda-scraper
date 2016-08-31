@@ -152,4 +152,5 @@ class FundaSoldSpider(CrawlSpider):
 
     def extract_text(self, response, xpath):
         results = response.xpath(xpath).extract()
+        results = map(lambda x: x.strip(), results)
         return ' '.join(results).strip().lower()

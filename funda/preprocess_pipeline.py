@@ -9,11 +9,11 @@ import datetime
 import re
 from scrapy.exceptions import DropItem
 
-def try_extract_number(item, item_key, regex = r'[\d.]+'):
+def try_extract_number(item, item_key, regex = r'[\d.,]+'):
     text = try_extract(item, item_key, regex)
     if not(text):
         return None
-    return int(text.replace('.', ''))
+    return float(text.replace('.', '').replace(',', '.'))
 
 def try_extract_date(item, item_key, regex = r'\d\d?-\d\d?-\d{4}'):
     text = try_extract(item, item_key, regex)
@@ -61,11 +61,11 @@ class PreprocessPipeline(object):
         item['verkoopdatum'] =  try_extract_date(item, 'verkoopdatum_text') 
 
         # bouwjaar
-        item['bouwjaar'] =  try_extract_number(item, 'bouwjaar_text', r'\d{4}') 
+        item['bouwjaar'] =  int(try_extract_number(item, 'bouwjaar_text', r'\d{4}')) 
 
         # bouwperiode
-        item['bouwperiode_start'] = try_extract_number(item, 'bouwperiode_text', r'(\d{4})-\d{4}') or item.get('bouwjaar') 
-        item['bouwperiode_end'] = try_extract_number(item, 'bouwperiode_text', r'\d{4}-(\d{4})') or item.get('bouwjaar')
+        item['bouwperiode_start'] = int(try_extract_number(item, 'bouwperiode_text', r'(\d{4})-\d{4}') or item.get('bouwjaar')) 
+        item['bouwperiode_end'] = int(try_extract_number(item, 'bouwperiode_text', r'\d{4}-(\d{4})') or item.get('bouwjaar'))
 
         # inhoud
         item['inhoud'] = try_extract_number(item, 'inhoud_text', r'[\d.]+')
@@ -81,18 +81,18 @@ class PreprocessPipeline(object):
         # buitenruimte
         item['buitenruimte'] = try_extract_number(item, 'buitenruimte_text', r'[\d.]+')
 
-        periodieke_bijdrage = try_extract_number(item, 'periodieke_bijdrage_text', r'([\d.]+),?\d* per maand')
-        vve_bijdrage = try_extract_number(item, 'vve_bijdrage_text', r'([\d.]+),?\d* per maand')
-        service_kosten = try_extract_number(item, 'service_kosten_text', r'([\d.]+),?\d* per maand')
+        periodieke_bijdrage = try_extract_number(item, 'periodieke_bijdrage_text', r'([\d.,]+) per maand')
+        vve_bijdrage = try_extract_number(item, 'vve_bijdrage_text', r'([\d.,]+) per maand')
+        service_kosten = try_extract_number(item, 'service_kosten_text', r'([\d.,]+) per maand')
         item['periodieke_bijdrage'] = periodieke_bijdrage or vve_bijdrage or service_kosten
         
         # kamers
-        item['kamers'] = try_extract_number(item, 'kamers_text', r'(\d+) kamer')
-        item['slaapkamers'] = try_extract_number(item, 'kamers_text', r'(\d+) slaapkamer')
+        item['kamers'] = int(try_extract_number(item, 'kamers_text', r'(\d+) kamer'))
+        item['slaapkamers'] = int(try_extract_number(item, 'kamers_text', r'(\d+) slaapkamer'))
 
         #badkamers en toiletten
-        item['badkamers'] = try_extract_number(item, 'badkamers_text', r'(\d+) badkamer')
-        item['toiletten'] = try_extract_number(item, 'badkamers_text', r'(\d+) apart')
+        item['badkamers'] = int(try_extract_number(item, 'badkamers_text', r'(\d+) badkamer'))
+        item['toiletten'] = int(try_extract_number(item, 'badkamers_text', r'(\d+) apart'))
 
         #balkon/dakterras    
         balkon_of_dakterras = item.get('balkon_of_dakterras', '').lower()
@@ -101,32 +101,32 @@ class PreprocessPipeline(object):
         item['balkon'] = 'balkon' in balkon_of_dakterras.replace('frans balkon', '')
         
         # garage capaciteit
-        item['garage_capaciteit'] = try_extract_number(item, 'garage_capaciteit_text', r'(\d+) auto')
+        item['garage_capaciteit'] = int(try_extract_number(item, 'garage_capaciteit_text', r'(\d+) auto'))
 
         # achtertuin 1.088 m² (8m diep en 11m breed)
-        item['achtertuin_diepte'] = try_extract_number(item, 'achtertuin_text', r'(\d+)m diep')
-        item['achtertuin_breedte'] = try_extract_number(item, 'achtertuin_text', r'(\d+)m breed')
-        item['achtertuin_oppervlakte'] = try_extract_number(item, 'achtertuin_text', r'([\d.]+) m')
+        item['achtertuin_diepte'] = try_extract_number(item, 'achtertuin_text', r'([\d,]+)m diep')
+        item['achtertuin_breedte'] = try_extract_number(item, 'achtertuin_text', r'([\d,]+)m breed')
+        item['achtertuin_oppervlakte'] = try_extract_number(item, 'achtertuin_text', r'([\d.,]+) m')
 
         # voortuin
-        item['voortuin_diepte'] = try_extract_number(item, 'voortuin_text', r'(\d+)m diep')
-        item['voortuin_breedte'] = try_extract_number(item, 'voortuin_text', r'(\d+)m breed')
-        item['voortuin_oppervlakte'] = try_extract_number(item, 'voortuin_text', r'([\d.]+) m')
+        item['voortuin_diepte'] = try_extract_number(item, 'voortuin_text', r'([\d,]+)m diep')
+        item['voortuin_breedte'] = try_extract_number(item, 'voortuin_text', r'([\d,]+)m breed')
+        item['voortuin_oppervlakte'] = try_extract_number(item, 'voortuin_text', r'([\d.,]+) m')
 
         # zijtuin
-        item['zijtuin_diepte'] = try_extract_number(item, 'zijtuin_text', r'(\d+)m diep')
-        item['zijtuin_breedte'] = try_extract_number(item, 'zijtuin_text', r'(\d+)m breed')
-        item['zijtuin_oppervlakte'] = try_extract_number(item, 'zijtuin_text', r'([\d.]+) m')
+        item['zijtuin_diepte'] = try_extract_number(item, 'zijtuin_text', r'([\d,]+)m diep')
+        item['zijtuin_breedte'] = try_extract_number(item, 'zijtuin_text', r'([\d,]+)m breed')
+        item['zijtuin_oppervlakte'] = try_extract_number(item, 'zijtuin_text', r'([\d.,]+) m')
 
         # zonneterras
-        item['zonneterras_diepte'] = try_extract_number(item, 'zonneterras_text', r'(\d+)m diep')
-        item['zonneterras_breedte'] = try_extract_number(item, 'zonneterras_text', r'(\d+)m breed')
-        item['zonneterras_oppervlakte'] = try_extract_number(item, 'zonneterras_text', r'([\d.]+) m')
+        item['zonneterras_diepte'] = try_extract_number(item, 'zonneterras_text', r'([\d,]+)m diep')
+        item['zonneterras_breedte'] = try_extract_number(item, 'zonneterras_text', r'([\d,]+)m breed')
+        item['zonneterras_oppervlakte'] = try_extract_number(item, 'zonneterras_text', r'([\d.,]+) m')
 
         # patio
-        item['patio_diepte'] = try_extract_number(item, 'patio_text', r'(\d+)m diep')
-        item['patio_breedte'] = try_extract_number(item, 'patio_text', r'(\d+)m breed')
-        item['patio_oppervlakte'] = try_extract_number(item, 'patio_text', r'([\d.]+) m')
+        item['patio_diepte'] = try_extract_number(item, 'patio_text', r'([\d,]+)m diep')
+        item['patio_breedte'] = try_extract_number(item, 'patio_text', r'([\d,]+)m breed')
+        item['patio_oppervlakte'] = try_extract_number(item, 'patio_text', r'([\d.,]+) m')
 
         # tuin_text
         tuin_text = item.get('tuin_text', '').lower()
@@ -154,14 +154,14 @@ class PreprocessPipeline(object):
 
         item['soort_woning'] = item.get('soort_huis') or item.get('soort_appartement')
         
-        item['woonlagen'] = try_extract_number(item, 'woonlagen_text', r'(\d+) woonla')
+        item['woonlagen'] = int(try_extract_number(item, 'woonlagen_text', r'(\d+) woonla'))
         woonlagen_text = item.get('woonlagen_text', '').lower()
         item['kelder'] = "kelder" in woonlagen_text
         item['vliering'] = "vliering" in woonlagen_text
         item['zolder'] = "zolder" in woonlagen_text
     
     
-        item['verdieping'] = 0 if "begane grond" in item.get('gelegen_op_text', '') else try_extract_number(item, 'gelegen_op_text', r'\d+')
+        item['verdieping'] = 0 if "begane grond" in item.get('gelegen_op_text', '') else int(try_extract_number(item, 'gelegen_op_text', r'\d+'))
 
         
         eigendoms_info = (item.get("eigendomssituatie_text", '') + item.get("lasten_text", '')).lower()

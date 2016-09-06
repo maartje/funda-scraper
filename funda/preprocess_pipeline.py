@@ -80,12 +80,12 @@ class PreprocessPipeline(object):
         item['perceel_oppervlakte'] = try_extract_double(item, 'perceel_oppervlakte_text', r'[\d.]+')
 
         # inpandige ruimte
-        item['inpandige_ruimte'] = try_extract_double(item, 'inpandige_ruimte_text', r'[\d.]+')
+        item['inpandige_ruimte_oppervlakte'] = try_extract_double(item, 'inpandige_ruimte_text', r'[\d.]+')
 
-        item['externe_bergruimte'] = try_extract_double(item, 'externe_bergruimte_text', r'[\d.]+')
+        item['externe_bergruimte_oppervlakte'] = try_extract_double(item, 'externe_bergruimte_text', r'[\d.]+')
 
-        # buitenruimte
-        item['buitenruimte'] = try_extract_double(item, 'buitenruimte_text', r'[\d.]+')
+        # buitenruimte_oppervlakte
+        item['buitenruimte_oppervlakte'] = try_extract_double(item, 'buitenruimte_text', r'[\d.]+')
 
         periodieke_bijdrage = try_extract_double(item, 'periodieke_bijdrage_text', r'([\d.,]+) per maand')
         vve_bijdrage = try_extract_double(item, 'vve_bijdrage_text', r'([\d.,]+) per maand')

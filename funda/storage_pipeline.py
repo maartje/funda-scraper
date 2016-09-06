@@ -37,9 +37,9 @@ class StoragePipeline(object):
             'kamers_text':  dict(item).get('kamers_text', ''),
             'aangeboden_sinds_text':  dict(item).get('aangeboden_sinds_text', ''),
             'verkoopdatum_text':  dict(item).get('verkoopdatum_text', ''),
-            'looptijd_text':  dict(item).get('looptijd_text', ''),
-            'toegankelijkheid_text':  dict(item).get('toegankelijkheid_text', ''),
-            'keurmerken_text':  dict(item).get('keurmerken_text', ''),
+            'looptijd':  dict(item).get('looptijd', ''),
+            'toegankelijkheid':  dict(item).get('toegankelijkheid', ''),
+            'keurmerken':  dict(item).get('keurmerken', ''),
             
             'soort_huis' : dict(item).get('soort_huis', ''),
             'soort_appartement' : dict(item).get('soort_appartement', ''),
@@ -76,7 +76,7 @@ class StoragePipeline(object):
             'ligging_tuin_text' : dict(item).get('ligging_tuin_text', ''),
             'balkon_of_dakterras' : dict(item).get('balkon_of_dakterras', ''),
             'schuur_of_berging' : dict(item).get('schuur_of_berging', ''),
-            'garage' : dict(item).get('garage', ''),
+            'garage_text' : dict(item).get('garage_text', ''),
             'garage_capaciteit_text' : dict(item).get('garage_capaciteit_text', ''),
             'parkeergelegenheid' : dict(item).get('parkeergelegenheid', ''),
             
@@ -105,8 +105,8 @@ class StoragePipeline(object):
             
             'woonoppervlakte' :  dict(item).get('woonoppervlakte', ''),
             'perceel_oppervlakte' : dict(item).get('perceel_oppervlakte', ''),
-            'inpandige_ruimte' : dict(item).get('inpandige_ruimte', ''),
-            'buitenruimte' : dict(item).get('buitenruimte', ''),
+            'inpandige_ruimte_oppervlakte' : dict(item).get('inpandige_ruimte_oppervlakte', ''),
+            'buitenruimte_oppervlakte' : dict(item).get('buitenruimte_oppervlakte', ''),
             
             'kamers':  dict(item).get('kamers', ''),
             'slaapkamers' : dict(item).get('slaapkamers', ''),
@@ -155,7 +155,7 @@ class StoragePipeline(object):
             'vliering' : dict(item).get('vliering', ''),
             'zolder' : dict(item).get('zolder', ''),
             'garage_capaciteit' : dict(item).get('garage_capaciteit', ''),
-            'externe_bergruimte' : dict(item).get('externe_bergruimte', ''),
+            'externe_bergruimte_oppervlakte' : dict(item).get('externe_bergruimte_oppervlakte', ''),
             'verdieping' : dict(item).get('verdieping', ''),
             'inhoud' : dict(item).get('inhoud', ''),
             

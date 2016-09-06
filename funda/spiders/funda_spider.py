@@ -34,11 +34,11 @@ class FundaSpider(CrawlSpider):
 
         new_item['verkoopdatum_text'] = self.extract_feature(response, 'Verkoopdatum')
 
-        new_item['looptijd_text'] = self.extract_feature(response, 'Looptijd')
+        new_item['looptijd'] = self.extract_feature(response, 'Looptijd')
 
-        new_item['toegankelijkheid_text'] = self.extract_feature(response, 'Toegankelijkheid')
+        new_item['toegankelijkheid'] = self.extract_feature(response, 'Toegankelijkheid')
 
-        new_item['keurmerken_text'] = self.extract_feature(response, 'Keurmerken')
+        new_item['keurmerken'] = self.extract_feature(response, 'Keurmerken')
 
         new_item['bouwjaar_text'] = self.extract_feature(response, 'Bouwjaar')
 
@@ -125,7 +125,7 @@ class FundaSpider(CrawlSpider):
 
         new_item['schuur_of_berging'] = self.extract_feature(response, 'Schuur/berging')
 
-        new_item['garage'] = self.extract_feature(response, 'Soort garage')
+        new_item['garage_text'] = self.extract_feature(response, 'Soort garage')
 
         new_item['garage_capaciteit_text'] = self.extract_feature(response, 'Capaciteit')
 

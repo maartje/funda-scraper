@@ -44,6 +44,11 @@ class PreprocessPipeline(object):
         
         # woningtype
         item['woningtype'] = try_extract_string(item, 'url', r'/(appartement)-') or try_extract_string(item, 'url', r'/(huis)-')
+        
+        # funda_id
+        item['funda_id'] = try_extract_string(item, 'url', r'-(\d+)-') 
+        
+        item['verkocht'] = 'verkocht' in item.get('url')
 
         # address info
         item['postcode'] = try_extract_string(item, 'title', r'\d{4} [A-Z]{2}')
@@ -53,6 +58,8 @@ class PreprocessPipeline(object):
         item['straat'] = try_extract_string(item, 'title', r'te koop: ([a-zA-Z\. -]*) \d+') or try_extract_string(item, 'title', r'Verkocht: ([a-zA-Z\.-]*) ')
         item['huisnummer'] = try_extract_string(item, 'title', r'\d+')
         
+        item['id'] = item['postcode_wijk'] + '_'+ item['huisnummer'] + '_'+ item['funda_id']
+
         item['energielabel'] = try_extract_string(item, 'energielabel_text', r'[a-zA-Z]') 
 
         # vraagprijs

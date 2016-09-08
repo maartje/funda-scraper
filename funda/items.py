@@ -65,8 +65,11 @@ class FundaItem(scrapy.Item):
 
 
     # analyzed fields 
+    funda_id = scrapy.Field()
+    id = scrapy.Field()
     woningtype = scrapy.Field()  # url
     soort_woning = scrapy.Field()
+    verkocht = scrapy.Field()
 
     gemeente = scrapy.Field()    # title
     postcode = scrapy.Field()    # title
@@ -156,7 +159,7 @@ class FundaItem(scrapy.Item):
 
     energielabel = scrapy.Field()
     
-    
+    insertion_date = scrapy.Field()
     # omschrijving
     # image url
     

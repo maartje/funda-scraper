@@ -41,6 +41,8 @@ class PreprocessPipeline(object):
     def process_item(self, item, spider):
         if not(item.get('url')):
             raise DropItem("Missing url in %s" % item)
+
+        item['insertion_date'] = datetime.datetime.now()
         
         # woningtype
         item['woningtype'] = try_extract_string(item, 'url', r'/(appartement)-') or try_extract_string(item, 'url', r'/(huis)-')

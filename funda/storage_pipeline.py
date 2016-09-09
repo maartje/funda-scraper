@@ -7,7 +7,6 @@
 
 from azure.storage.table import TableService, Entity
 from scrapy.exceptions import DropItem
-import datetime
 
 table_service = TableService(account_name='mlhousing', account_key='RtqHj1/pRK+2WsMjZuql7TbyXOQwk4DRXJ/iLLrShwA8/9uTzxTuqomYaq4IW0szQ6JIdKVAANapJkOge/aGEQ==')
 
@@ -22,7 +21,6 @@ class StoragePipeline(object):
         if not(item.get('huisnummer')):
             raise DropItem("Missing 'huisnummer' in %s" % item.get('url', item))
         
-        item['insertion_date'] = datetime.datetime.now()
             
         house = {
             'PartitionKey': item['gemeente'],

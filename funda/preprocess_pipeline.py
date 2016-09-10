@@ -107,7 +107,7 @@ class PreprocessPipeline(object):
 
         #badkamers en toiletten
         item['badkamers'] = try_extract_integer(item, 'badkamers_text', r'(\d+) badkamer')
-        item['toiletten'] = try_extract_integer(item, 'badkamers_text', r'(\d+) apart')
+        item['aparte_toiletten'] = try_extract_integer(item, 'badkamers_text', r'(\d+) apart')
 
         #balkon/dakterras    
         balkon_of_dakterras = item.get('balkon_of_dakterras', '').lower()

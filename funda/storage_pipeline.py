@@ -117,7 +117,7 @@ class StoragePipeline(object):
             'slaapkamers' : dict(item).get('slaapkamers', ''),
 
             'badkamers':  dict(item).get('badkamers', ''),
-            'toiletten':  dict(item).get('toiletten', ''),
+            'aparte_toiletten':  dict(item).get('aparte_toiletten', ''),
 
             'periodieke_bijdrage' : dict(item).get('periodieke_bijdrage', ''),
 

@@ -2,6 +2,7 @@ import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from funda.items import FundaItem
+import re
 
 class FundaSoldSpider(CrawlSpider):
 
@@ -16,12 +17,15 @@ class FundaSoldSpider(CrawlSpider):
         self.le2 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}.*/kenmerken/' % self.base_url)
 
     def parse(self, response):
+        page_nr_matches = re.findall(r'p(\d+)', response.url, re.IGNORECASE)
+        page_nr = int(page_nr_matches[0]) if page_nr_matches else 0
         links = self.le1.extract_links(response)
         slash_count = self.base_url.count('/')+1        # Controls the depth of the links to be scraped
         for link in links:
             if link.url.count('/') == slash_count and link.url.endswith('/'):
                 item = FundaItem()
                 item['url'] = link.url
+                item['page_nr'] = page_nr
                 yield scrapy.Request(link.url, callback=self.parse_dir_contents, meta={'item': item})
 
     def parse_dir_contents(self, response):

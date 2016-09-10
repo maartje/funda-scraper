@@ -1,6 +1,7 @@
 import scrapy
 
 class FundaItem(scrapy.Item):
+    page_nr = scrapy.Field() #TODO: only for debugging
     
     # scraped text fields 
     url = scrapy.Field()
@@ -100,7 +101,7 @@ class FundaItem(scrapy.Item):
     slaapkamers = scrapy.Field() # kamers_text
     
     badkamers = scrapy.Field() # badkamers_text
-    toiletten = scrapy.Field() # badkamers_text
+    aparte_toiletten = scrapy.Field() # badkamers_text
     
     periodieke_bijdrage = scrapy.Field()
     

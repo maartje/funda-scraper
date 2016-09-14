@@ -31,7 +31,7 @@ def try_extract_string(item, item_key, regex, flags = re.IGNORECASE):
     text  = item.get(item_key, '')
     matches = re.findall(regex, text, flags)
     if not(matches):
-        return None
+        return ''
     return matches[0]
 
 class PreprocessPipeline(object):

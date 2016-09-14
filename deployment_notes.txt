@@ -1,0 +1,7 @@
+# MAILTO="maartjedejonge@gmail.com"
+SHELL=/bin/bash
+PATH=/usr/local/bin
+
+11 6 * * * cd /home/maartje/housing-data-collector/ && scrapy crawl funda_spider -a place=amsterdam -o amsterdam_for_sale_$(/bin/date '+\%Y\%m\%d').csv -s LOG_LEVEL=ERROR &>> funda_scraper_log.txt
+
+11 7 * * * cd /home/maartje/housing-data-collector/ && scrapy crawl funda_spider_sold -a place=amsterdam -o amsterdam_sold_$(/bin/date '+\%Y\%m\%d').csv -s LOG_LEVEL=ERROR &>> funda_scraper_log.txt

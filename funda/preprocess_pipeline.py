@@ -27,9 +27,9 @@ def try_extract_date(item, item_key, regex = r'\d\d?-\d\d?-\d{4}'):
         return None
     return datetime.datetime.strptime(text, "%d-%m-%Y")
 
-def try_extract_string(item, item_key, regex):
+def try_extract_string(item, item_key, regex, flags = re.IGNORECASE):
     text  = item.get(item_key, '')
-    matches = re.findall(regex, text, re.IGNORECASE)
+    matches = re.findall(regex, text, flags)
     if not(matches):
         return None
     return matches[0]
@@ -53,10 +53,10 @@ class PreprocessPipeline(object):
         item['verkocht'] = 'verkocht' in item.get('url')
 
         # address info
-        item['postcode'] = try_extract_string(item, 'title', r'\d{4} [A-Z]{2}')
-        item['postcode_regio'] = try_extract_string(item, 'title', r'(\d{2})\d{2} [A-Z]{2}')
-        item['postcode_wijk'] = try_extract_string(item, 'title', r'(\d{4}) [A-Z]{2}')
-        item['gemeente'] = try_extract_string(item, 'title', r'\d{4} [A-Z]{2} (\w+)')
+        item['postcode'] = try_extract_string(item, 'title', r'\d{4} [A-Z]{2}', 0)
+        item['postcode_regio'] = try_extract_string(item, 'title', r'(\d{2})\d{2} [A-Z]{2}', 0)
+        item['postcode_wijk'] = try_extract_string(item, 'title', r'(\d{4}) [A-Z]{2}', 0)
+        item['gemeente'] = try_extract_string(item, 'title', r'\d{4} [A-Z]{2} (\w+)', 0)
         item['straat'] = try_extract_string(item, 'title', r'te koop: ([a-zA-Z\. -]*) \d+') or try_extract_string(item, 'title', r'Verkocht: ([a-zA-Z\.-]*) ')
         item['huisnummer'] = try_extract_string(item, 'title', r'\d+')
         

@@ -11,7 +11,7 @@ class FundaSpider(CrawlSpider):
 
 
     def __init__(self, place='amsterdam'):
-        self.start_urls = ["http://www.funda.nl/koop/%s/p%s/" % (place, page_number) for page_number in range(1,250)]
+        self.start_urls = ["http://www.funda.nl/koop/%s/p%s/" % (place, page_number) for page_number in range(250,500)]
         self.base_url = "http://www.funda.nl/koop/%s/" % place
         self.le1 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}' % self.base_url)
 

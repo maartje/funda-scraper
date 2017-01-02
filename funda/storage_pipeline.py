@@ -8,7 +8,7 @@
 from azure.storage.table import TableService, Entity
 from scrapy.exceptions import DropItem
 
-table_service = TableService(account_name='mlhousing', account_key='RtqHj1/pRK+2WsMjZuql7TbyXOQwk4DRXJ/iLLrShwA8/9uTzxTuqomYaq4IW0szQ6JIdKVAANapJkOge/aGEQ==')
+table_service = TableService(account_name='mlhousing', account_key='')
 
 class StoragePipeline(object):
     def process_item(self, item, spider):

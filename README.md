@@ -1,6 +1,8 @@
 ## Overview
 Scraper of the Dutch real estate website [Funda.nl](http://www.funda.nl/), written in Python using [Scrapy](https://scrapy.org/). Based on [funda-scraper](https://github.com/jackha/funda-scraper).
 
+## Motivation
+This project is part of a study project to learn data science. The main learning purposes: Python, regular expressions, web scraping.
 
 ## Basic Usage
 There are two spiders: `funda_spider` scrapes data on houses for sale in a certain city, such as those listed on [http://www.funda.nl/koop/amsterdam/](http://www.funda.nl/koop/amsterdam/), `funda_spider_sold` scrapes data on houses which have recently been sold, such as those listed on [http://www.funda.nl/koop/verkocht/amsterdam/](http://www.funda.nl/koop/verkocht/amsterdam/).
@@ -18,6 +20,3 @@ Install [Scrapy](https://scrapy.org/) in the project directory
 
 - sudo apt-get install python-pip python-scrapy
 
-## Motivation
-
-The data is collected as part of a data science study project.
